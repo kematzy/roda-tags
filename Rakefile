@@ -15,6 +15,11 @@ task :coverage do
   Rake::Task['spec'].invoke
 end
 
+desc "Run Rubocop report"
+task :rubocop do
+  `rubocop -f html -o ./Rubocop-report.html lib/`
+end
+
 
 desc "Check syntax of all .rb files"
 task :check_syntax do
