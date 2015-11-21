@@ -4,13 +4,13 @@ class Hash
   # remove any other version of #to_html_attributes
   undef_method :to_html_attributes if method_defined?(:to_html_attributes)
   
-  def to_html_attributes(include_empties=nil)
+  def to_html_attributes(empties = nil)
     hash = self.dup
-    hash.reject! {|k,v| v.blank? } unless include_empties.nil?
+    hash.reject! { |_k, v| v.blank? } unless empties.nil?
     out = ''
     hash.keys.sort.each do |key|  # NB!! sorting output order of attributes alphabetically
       val = hash[key].is_a?(Array) ? hash[key].join('_') : hash[key].to_s
-      out << "#{key.to_s}=\"#{val}\" "
+      out << "#{key}=\"#{val}\" "
     end
     out.strip
   end
@@ -37,7 +37,7 @@ class Hash
     # Destructive +reverse_merge+.
     def reverse_merge!(other_hash)
       # right wins if there is no left
-      merge!( other_hash ){|key,left,right| left }
+      merge!(other_hash) { |_key, left, _right| left }
     end
     alias_method :reverse_update, :reverse_merge!
     

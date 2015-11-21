@@ -1,4 +1,5 @@
 
+# reopening Object class
 class Object
   # An object is blank if it's false, empty, or a whitespace string.
   # For example, +false+, '', '   ', +nil+, [], and {} are all blank.
@@ -44,7 +45,7 @@ class Object
   end
 end
 
-
+# reopening NilClass class
 class NilClass
   # +nil+ is blank:
   #
@@ -54,8 +55,10 @@ class NilClass
   def blank?
     true
   end
+  
 end
 
+# reopening FalseClass class
 class FalseClass
   # +false+ is blank:
   #
@@ -65,8 +68,10 @@ class FalseClass
   def blank?
     true
   end
+  
 end
 
+# reopening TrueClass class
 class TrueClass
   # +true+ is not blank:
   #
@@ -76,8 +81,10 @@ class TrueClass
   def blank?
     false
   end
+  
 end
 
+# reopening Array class
 class Array
   # An array is blank if it's empty:
   #
@@ -86,8 +93,10 @@ class Array
   #
   # @return [true, false]
   alias_method :blank?, :empty?
+  
 end
 
+# reopening Hash class
 class Hash
   # A hash is blank if it's empty:
   #
@@ -96,8 +105,10 @@ class Hash
   #
   # @return [true, false]
   alias_method :blank?, :empty?
+  
 end
 
+# reopening String class
 class String
   BLANK_RE = /\A[[:space:]]*\z/
 
@@ -119,6 +130,7 @@ class String
   
 end
 
+# reopening Numeric class
 class Numeric #:nodoc:
   # No number is blank:
   #
@@ -129,8 +141,10 @@ class Numeric #:nodoc:
   def blank?
     false
   end
+  
 end
 
+# reopening Time class
 class Time #:nodoc:
   # No Time is blank:
   #
@@ -140,4 +154,5 @@ class Time #:nodoc:
   def blank?
     false
   end
+  
 end
