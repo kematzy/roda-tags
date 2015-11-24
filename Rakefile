@@ -2,7 +2,7 @@ require "bundler/gem_tasks"
 require "rake/testtask"
 
 Rake::TestTask.new(:spec) do |t|
-  t.libs << "test"
+  t.libs << "spec"
   t.libs << "lib"
   t.test_files = FileList['spec/**/*_spec.rb']
 end
@@ -18,10 +18,4 @@ end
 desc "Run Rubocop report"
 task :rubocop do
   `rubocop -f html -o ./Rubocop-report.html lib/`
-end
-
-
-desc "Check syntax of all .rb files"
-task :check_syntax do
-  Dir['**/*.rb'].each{|file| print `#{ENV['RUBY'] || :ruby} -c #{file} | fgrep -v "Syntax OK"`}
 end
