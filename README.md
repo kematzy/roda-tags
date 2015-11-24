@@ -949,13 +949,13 @@ The default settings should help you get moving quickly, and are fairly common s
 
 However the `:tags` plugin supports these config options:
 
-### `:tag_output_format_is_xhtml`
+#### `:tag_output_format_is_xhtml`
 
 Sets the HTML output format, toggling between `HTML 5` (`false`) and `XHTML` (`true`). Default is: `false`.
 
 This option is retained for legacy support and in memory of the *"good old days"* ;-).
 
-### `:tag_add_newlines_after_tags`
+#### `:tag_add_newlines_after_tags`
 
 Sets the formatting of the HTML output, whether it should be more compact in nature or slightly better formatted. Default is: `true`.
 
@@ -963,16 +963,16 @@ Sets the formatting of the HTML output, whether it should be more compact in nat
 The `:tag_helpers` plugin supports these config options:
 
 
-### `:tags_label_required_str`
+#### `:tags_label_required_str`
 
 Sets the formatting of the string appended to required `<label...>` tags. Default is: `'<span>*</span>'`.
 
-### `:tags_label_append_str`
+#### `:tags_label_append_str`
 
 Sets the formatting of the string appended to `<label...>` tags. Default is: `':'`.
 
 
-### `:tags_forms_default_class`
+#### `:tags_forms_default_class`
 
 Sets the default class value for form tags. Default is: `''` (empty).
 
