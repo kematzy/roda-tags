@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   
   spec.platform         = Gem::Platform::RUBY
   spec.has_rdoc         = true
-  spec.extra_rdoc_files = ["README.md", "MIT-LICENSE"]
+  spec.extra_rdoc_files = ["README.md", "LICENSE.txt"]
   spec.rdoc_options     += ["--quiet", "--line-numbers", "--inline-source", '--title', 'Roda-Tags: HTML tag plugin', '--main', 'README.md']
   
   spec.add_runtime_dependency 'roda'
