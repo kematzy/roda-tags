@@ -298,9 +298,9 @@ end
 Automatically adds a hidden *faux method* when `:method` is NOT either `POST` or `GET`.
 
 ```ruby
-<% form_tag('/user/1/profile', method: :put, id: 'profile-form') %>
+form_tag('/user/1/profile', method: :put, id: 'profile-form')
   ...
-<% end %>
+end
   #  <form action="/user/1/profile" id="profile-form" method="post" >
   #    <input name="_method" type="hidden" value="put"/>
   #    ...
@@ -310,11 +310,11 @@ Automatically adds a hidden *faux method* when `:method` is NOT either `POST` or
 Add multipart support via:
 
 ```ruby
-<% form_tag('/upload', multipart: true) %>
-# or
-<% form_tag('/upload', multipart: 'multipart/form-data') %>
-# or
-<% form_tag('/upload', enctype: 'multipart/form-data') %>
+form_tag('/upload', multipart: true)
+ # or
+form_tag('/upload', multipart: 'multipart/form-data')
+ # or
+form_tag('/upload', enctype: 'multipart/form-data')
   #  <form enctype="multipart/form-data" method="post" action="/upload">
   #     ...
   #  </form>
@@ -332,18 +332,18 @@ Constructs a `<label>` tag from the given options.
 By default appends `':'` to the label name, based upon the plugin config `:tags_label_append ` value.
 
 ```ruby
-<%= label_tag(:name) %>
+label_tag(:name)
   #=> <label for="name">Name:</label>
      
-<%= label_tag(:name, label: 'Custom label', class: 'sr-only') %>
+label_tag(:name, label: 'Custom label', class: 'sr-only')
   #=> <label class="sr-only" for="name">Custom label:</label>
 
  # uses a humanized version of the label name if { label: nil } 
-<%= label_tag(:name, label: nil) %>
+label_tag(:name, label: nil)
   #=> <label for="name">Name:</label>
 
  # removes the label text when { label: :false }
-<%= label_tag(:name, label: false) %>
+label_tag(:name, label: false)
   #=> <label for="name"></label>
 ```
 
@@ -351,7 +351,7 @@ By default adds `'<span>*</span>'` to the label name when `{ required: true }` i
 
 
 ```ruby
-<%= label_tag(:name, required: true) %>
+label_tag(:name, required: true)
   #=> <label for="name">Name: <span>*</span></label>
 ```
 
@@ -377,17 +377,17 @@ Constructs a hidden input field from the given options. Only `[:value, :id, :nam
 
 
 ```ruby
-<%= hidden_field_tag(:snippet_name) %>
+hidden_field_tag(:snippet_name)
   #=> <input id="snippet_name" name="snippet_name" type="hidden">
 
-<%= hidden_field_tag(:csrf, value: 'tokenval') %>
+hidden_field_tag(:csrf, value: 'tokenval')
   #=> <input id="csrf" name="csrf" type="hidden" value="tokenval">
 
-<%= hidden_field_tag(:snippet_id, id: 'some-id') %>
+hidden_field_tag(:snippet_id, id: 'some-id')
   #=> <input id="some-id" name="snippet_id" type="hidden">
 
  # removing the `:id` attribute completely.
-<%= hidden_field_tag(:snippet_name, id: false) %>
+hidden_field_tag(:snippet_name, id: false)
   #=> <input name="snippet_name" type="hidden">
 ``` 
 
@@ -467,7 +467,7 @@ password_field_tag(:name, ui_hint: 'a user hint')
 password_field_tag(:ip_address, maxlength: 15, size: 20)
   #=> <input class="text" id="ip_address" maxlength="15" name="ip_address" size="20" type="password">
 
-# `disabled` attribute
+ # `disabled` attribute
 password_field_tag(:name, disabled: true)
 password_field_tag(:name, disabled: :disabled)
   #=> <input class="text" id="name" disabled="disabled" name="name" type="password">
@@ -522,7 +522,7 @@ file_field_tag(:photo, ui_hint: 'a user hint')
 file_field_tag(:photo, disabled: true)
   #=> <input class="file" disabled="disabled" id="photo" name="photo" type="file">
 
-# `:accept` attribute is subject to actual browser support.
+ # `:accept` attribute is subject to actual browser support.
 file_field_tag(:photo, accept: 'image/png,image/jpeg' )
   #=> <input accept="image/png,image/jpeg" class="file" id="photo" name="photo" type="file">
 ```
@@ -674,11 +674,11 @@ check_box_tag(:rock, value: 'rock music')
 check_box_tag(:rock, :id => 'some-id')
   #=> <input class="checkbox" id="some-id" name="rock" type="checkbox" value="1">
 
-# append a CSS class. NB! default class: '.checkbox'
+ # append a CSS class. NB! default class: '.checkbox'
 check_box_tag(:rock, class: 'small')
   #=> <input class="small checkbox" id="rock" name="rock" type="checkbox" value="1">
 
-# adds a `:title` attribute when passed `:ui_hint`
+ # adds a `:title` attribute when passed `:ui_hint`
 check_box_tag(:rock, ui_hint: 'a user hint')
   #=> <input class="checkbox" id="rock" name="rock" title="a user hint" type="checkbox" value="1">
 
@@ -721,11 +721,11 @@ radio_button_tag(:rock, class: 'big')
 radio_button_tag(:rock, ui_hint: 'a user hint')  
   #=> <input class="radio" id="rock_1" value="1" name="rock" title="a user hint" type="radio">
 
-# `checked` attribute
+ # `checked` attribute
 radio_button_tag(:yes, checked: true)
   #=> <input checked="checked" class="radio" id="yes_1" name="yes" type="radio" value="1">
 
-# `disabled` attribute
+ # `disabled` attribute
 radio_button_tag(:yes, disabled: true)
   #=> <input disabled="disabled" class="radio" id="yes_1" name="yes" type="radio" value="1">
 ```
