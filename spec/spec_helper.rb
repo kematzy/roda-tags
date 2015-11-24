@@ -10,6 +10,7 @@ require 'roda/tags'
 require 'tilt/erubis'
 require 'rack/test'
 require 'minitest/autorun'
+require 'minitest/have_tag'
 require 'minitest/hooks/default'
 require 'minitest/rg'
 
@@ -114,96 +115,4 @@ class Minitest::Spec
     body('/')
   end
   
-end
-
-
-class Minitest::Spec 
-  require 'nokogiri'
-  
-  def assert_have_tag(actual, expected, contents=nil, msg=nil)
-    msg = msg.nil? ? '' : "#{msg}\n"
-    msg << "Expected #{actual.inspect} to have tag [#{expected.inspect}]"
-    
-    doc = Nokogiri::HTML(actual)
-    res  = doc.css(expected)
-    
-    if res.empty?
-      msg << ", but no such tag was found"
-      matching = false
-    else
-      # such a tag was found
-      matching = true
-      
-      if contents
-        if contents.kind_of?(String)
-          if res.inner_html == contents
-            matching = true
-          else
-            msg << " with contents [#{contents.inspect}], but the tag content is [#{res.inner_html}]"
-            matching = false
-          end
-        elsif contents.kind_of?(Regexp)
-          if res.inner_html =~ contents
-            matching = true
-          else
-            msg << " with inner_html [#{res.inner_html}], but did not match Regexp [#{contents.inspect}]"
-            matching = false
-          end
-        else
-          msg << ", ERROR: contents is neither String nor Regexp, it's [#{contents.class}]"
-          matching = false
-        end
-      else
-        # no contents given, so ignore
-      end
-    end
-    assert matching, msg
-  end
-  
-  def refute_have_tag(actual, expected, contents=nil, msg=nil)
-    msg = msg.nil? ? '' : "#{msg}\n"
-    msg << "Expected #{actual.inspect} to NOT have tag [#{expected.inspect}]"
-    
-    doc = Nokogiri::HTML(actual)
-    res  = doc.css(expected)
-    
-    unless res.empty?
-      msg << ", but such a tag was found"
-      matching = true
-    else
-      # such a tag was found, BAD
-      matching = false
-      
-      if contents
-        if contents.kind_of?(String)
-          if res.inner_html == contents
-            matching = false
-          else
-            msg << " with contents [#{contents.inspect}], but the tag content is [#{res.inner_html}]"
-            matching = true
-          end
-        elsif contents.kind_of?(Regexp)
-          if res.inner_html =~ contents
-            matching = false
-          else
-            msg << " with inner_html [#{res.inner_html}], but did not match Regexp [#{contents.inspect}]"
-            matching = true
-          end
-        else
-          msg << ", ERROR: contents is neither String nor Regexp, it's [#{contents.class}]"
-          matching = true
-        end
-      else
-        # no contents given, so ignore
-      end
-    end
-    refute matching, msg
-  end
-  
-end
-
-
-module Minitest::Expectations
-  infect_an_assertion :assert_have_tag, :must_have_tag, :reverse
-  infect_an_assertion :refute_have_tag, :wont_have_tag, :reverse
 end

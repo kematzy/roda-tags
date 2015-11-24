@@ -40,6 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', "~> 10.0"
   spec.add_development_dependency 'minitest'
   spec.add_development_dependency 'minitest-hooks'
+  spec.add_development_dependency 'minitest-have_tag'
   spec.add_development_dependency 'minitest-rg'
   spec.add_development_dependency 'rack-test'
   spec.add_development_dependency 'nokogiri'
