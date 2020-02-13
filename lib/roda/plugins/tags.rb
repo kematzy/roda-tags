@@ -272,7 +272,7 @@ class Roda
         def concat_content(text = '') 
           if self.respond_to?(:is_haml?) && is_haml?
             haml_concat(text)
-          elsif :erb_buffer?
+          elsif erb_buffer?
             buffer_concat(text)
           else # theres no template to concat, return the text directly
             text
