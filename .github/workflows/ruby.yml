@@ -14,7 +14,7 @@ on:
     branches: ["master", "ruby-v3x"]
   pull_request:
     branches: ["master", "ruby-v3x"]
-:
+
 permissions:
   contents: read
 
