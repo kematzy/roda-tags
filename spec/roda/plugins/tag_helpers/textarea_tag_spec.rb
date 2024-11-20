@@ -51,7 +51,7 @@ describe Roda do
               end
 
               it 'supports removing id attribute' do
-                html = tag_helpers_app("<%= textarea_tag(:post, id: false) %>")
+                html = tag_helpers_app('<%= textarea_tag(:post, id: false) %>')
                 _(html).must_equal %(<textarea name="post"></textarea>\n)
               end
 
@@ -62,7 +62,9 @@ describe Roda do
 
               it 'adds title from ui_hint' do
                 html = tag_helpers_app('<%= textarea_tag(:post, ui_hint: "Enter text here") %>')
-                _(html).must_equal %(<textarea id="post" name="post" title="Enter text here"></textarea>\n)
+                _(html).must_equal(
+                  %(<textarea id="post" name="post" title="Enter text here"></textarea>\n)
+                )
               end
             end
             # /attributes handling

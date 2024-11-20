@@ -23,6 +23,7 @@ require 'minitest/rg'
 # Disable HTML escaping for all HAML templates in the tests.
 Haml::Template.options[:escape_html] = false
 
+# rubocop:disable Metrics/ClassLength
 class Minitest::Spec # rubocop:disable Style/ClassAndModuleChildren
   include Rack::Test::Methods
 
@@ -159,7 +160,7 @@ class Minitest::Spec # rubocop:disable Style/ClassAndModuleChildren
   # rubocop:disable Metrics/MethodLength
   def _app_haml(&block)
     c = Class.new(Roda)
-    c.plugin :render, engine: 'haml' #, escape: false
+    c.plugin :render, engine: 'haml' # , escape: false
     c.plugin(:not_found) { raise "path #{request.path_info} not found" }
     c.use Rack::Session::Cookie, secret: @cookie_secret
     c.class_eval do
@@ -250,3 +251,4 @@ class Minitest::Spec # rubocop:disable Style/ClassAndModuleChildren
     body('/')
   end
 end
+# rubocop:enable Metrics/ClassLength

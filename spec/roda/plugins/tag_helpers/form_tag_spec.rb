@@ -38,7 +38,9 @@ describe Roda do
                   it "renders faux #{method.upcase} method" do
                     html = tag_helpers_app("<% form_tag('/submit', method: :#{method}) %>")
                     _(html).must_have_tag('form[@method=post]')
-                    _(html).must_have_tag("input[@type=hidden][@name='_method'][@value='#{method.upcase}']")
+                    _(html).must_have_tag(
+                      "input[@type=hidden][@name='_method'][@value='#{method.upcase}']"
+                    )
                   end
                 end
               end
@@ -57,7 +59,9 @@ describe Roda do
               end
 
               it 'supports data attributes' do
-                html = tag_helpers_app("<% form_tag('/submit', data: { remote: true, type: 'json' }) %>")
+                html = tag_helpers_app(
+                  "<% form_tag('/submit', data: { remote: true, type: 'json' }) %>"
+                )
                 _(html).must_have_tag('form[@data-remote="true"][@data-type="json"]')
               end
             end
@@ -70,7 +74,9 @@ describe Roda do
               end
 
               it 'supports explicit multipart value' do
-                html = tag_helpers_app("<% form_tag('/submit', multipart: 'multipart/form-data') %>")
+                html = tag_helpers_app(
+                  "<% form_tag('/submit', multipart: 'multipart/form-data') %>"
+                )
                 _(html).must_have_tag('form[@enctype="multipart/form-data"]')
               end
 
@@ -120,7 +126,9 @@ describe Roda do
             describe 'security features' do
               it 'escapes HTML in attributes' do
                 skip 'TODO: add suppport for value sanitation'
-                # html = tag_helpers_app(%(<% form_tag('/submit', id: '<script>alert("xss")</script>') %>))
+                # html = tag_helpers_app(
+                #   %(<% form_tag('/submit', id: '<script>alert("xss")</script>') %>)
+                # )
                 # _(html).wont_include('<script>')
                 # _(html).must_include('&lt;script&gt;')
               end
@@ -129,7 +137,7 @@ describe Roda do
 
             describe 'error handling' do
               it 'handles nil action' do
-                html = tag_helpers_app("<% form_tag(nil) %>")
+                html = tag_helpers_app('<% form_tag(nil) %>')
                 _(html).must_have_tag('form[@method="post"]')
               end
 

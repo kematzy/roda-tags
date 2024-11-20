@@ -17,7 +17,7 @@ describe Roda do
 
                   route do |r|
                     r.root do
-                      render(inline: "Test")
+                      render(inline: 'Test')
                     end
                   end
                 end
@@ -58,7 +58,7 @@ describe Roda do
               end
 
               it 'handles being passed a Proc block' do
-                 _(tag_app(%{<% capture(proc { 'Test' }) do %>|<%= tag(:br) %>|<% end %>}))
+                _(tag_app(%{<% capture(proc { 'Test' }) do %>|<%= tag(:br) %>|<% end %>}))
                   .must_equal %(|<br>\n|)
               end
             end
@@ -105,27 +105,27 @@ describe Roda do
 
             it 'evaluates @_out_buf from block binding' do
               # Create a proc with @_out_buf defined in its binding
-              test_proc = Proc.new do
-                @_out_buf = "buffer content"
+              test_proc = proc do
+                @_out_buf = 'buffer content'
                 true
               end
 
-              result = instance.capture(test_proc) { "yield content" }
+              instance.capture(test_proc) { 'yield content' }
               # assert_equal nil, result
               # assert_equal "buffer content", result
             end
 
             it 'falls back to block parameter when not a Proc' do
               # instance = Class.new(Roda) { plugin :tags }.new({})
-              result = instance.capture("default content") { "yield content" }
-              assert_equal "default content", result
+              result = instance.capture('default content') { 'yield content' }
+              assert_equal 'default content', result
             end
 
             it 'restores original output buffer' do
               # instance = Class.new(Roda) { plugin :tags }.new({})
-              instance.instance_variable_set(:@output, "original")
-              instance.capture("test") { "yield" }
-              assert_equal "original", instance.instance_variable_get(:@output)
+              instance.instance_variable_set(:@output, 'original')
+              instance.capture('test') { 'yield' }
+              assert_equal 'original', instance.instance_variable_get(:@output)
             end
           end
         end

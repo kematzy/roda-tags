@@ -263,7 +263,6 @@ class Roda
         # @example Capturing with explicit block parameter
         #   capture(some_block) { yield }  # => captured block content
         #
-        # rubocop:disable Metrics/MethodLength
         def capture(block = '') # :nodoc:
           buf_was = @output
           @output = if block.is_a?(Proc)
@@ -276,7 +275,6 @@ class Roda
           @output = buf_was
           ret
         end
-        # rubocop:enable Metrics/MethodLength
 
         # Captures the content of a template block for Haml or ERB templates,
         # returning the captured HTML

@@ -58,7 +58,9 @@ describe Roda do
               end
 
               it 'supports data attributes' do
-                html = tag_helpers_app('<%= hidden_field_tag(:token, data: { role: "auth", type: "token" }) %>')
+                html = tag_helpers_app(
+                  '<%= hidden_field_tag(:token, data: { role: "auth", type: "token" }) %>'
+                )
                 _(html).must_have_tag('input[@data-role="auth"][@data-type="token"]')
               end
             end

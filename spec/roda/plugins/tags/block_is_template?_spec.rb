@@ -16,7 +16,7 @@ describe Roda do
 
                 route do |r|
                   r.root do
-                    render(inline: "Test")
+                    render(inline: 'Test')
                   end
                 end
               end
@@ -25,26 +25,26 @@ describe Roda do
             let(:instance) { erbapp.new({}) }
 
             describe 'with ERB render engine' do
-              it "returns true for blocks from ERB templates" do
+              it 'returns true for blocks from ERB templates' do
                 result = instance.render(inline: '<%= "Test" %>')
-                assert_equal "Test", result.strip
+                assert_equal 'Test', result.strip
               end
 
-              it "returns false for an ERB block" do
+              it 'returns false for an ERB block' do
                 erb_block = proc { '<%= "Test" %>' }
                 refute instance.send(:block_is_template?, erb_block)
               end
             end
             # /with ERB render engine
 
-            describe "with regular blocks" do
-              it "returns false for non-template blocks" do
-                regular_block = proc { "hello" }
+            describe 'with regular blocks' do
+              it 'returns false for non-template blocks' do
+                regular_block = proc { 'hello' }
 
                 refute instance.send(:block_is_template?, regular_block)
               end
 
-              it "returns false for nil" do
+              it 'returns false for nil' do
                 refute instance.send(:block_is_template?, nil)
               end
             end
@@ -57,7 +57,7 @@ describe Roda do
 
                   route do |r|
                     r.root do
-                      render(inline: "%p Test")
+                      render(inline: '%p Test')
                     end
                   end
                 end
@@ -71,7 +71,7 @@ describe Roda do
               end
 
               it 'returns false for a HAML block' do
-                haml_block = proc { "%p Test" }
+                haml_block = proc { '%p Test' }
                 refute haml_instance.send(:block_is_template?, haml_block)
               end
             end

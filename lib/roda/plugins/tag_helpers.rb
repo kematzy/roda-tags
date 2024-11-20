@@ -142,7 +142,7 @@ class Roda
         #   <%= label_tag(:name, required: true) %>
         #     #=> <label for="name">Name: <span>*</span></label>
         #
-        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
         def label_tag(field, attrs = {}, &block)
           field = field.to_s
 
@@ -153,7 +153,6 @@ class Roda
 
           attrs.reverse_merge!(label: field.titleize, for: for_text)
           # attrs.reverse_merge!(label: field.titleize, for: field)
-
 
           label_text = attrs.delete(:label)
           # handle FALSE & nil values
@@ -174,7 +173,7 @@ class Roda
             tag(:label, label_text, attrs)
           end
         end
-        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
         # Constructs a hidden field input from the given options
         #
@@ -848,6 +847,7 @@ class Roda
         #     #=> <select id="letters" disabled="disabled" name="letters">
         #     #     <snip...>
         #
+        # rubocop:disable Metrics/AbcSize
         def select_tag(name, options, attrs = {})
           name = name.to_s
           attrs = {} if attrs.nil?
@@ -863,6 +863,7 @@ class Roda
 
           tag(:select, options_html, { name: html_name }.merge(attrs))
         end
+        # rubocop:enable Metrics/AbcSize
 
         # Creates an option tag for use in a select dropdown menu.
         #

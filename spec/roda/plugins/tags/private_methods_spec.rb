@@ -37,9 +37,9 @@ describe Roda do
               it 'returns true for block with "<%= ... %>" tags' do
                 # Create binding with __in_erb_template defined
                 eval_binding = binding
-                eval_binding.eval("__in_erb_template = true")
+                eval_binding.eval('__in_erb_template = true')
                 # Create block that uses that binding
-                block = eval("proc { '<%= \"ERB\" %>' }", eval_binding)
+                block = eval("proc { '<%= \"ERB\" %>' }", eval_binding, __FILE__, __LINE__)
 
                 assert instance.send(:erb_block?, block)
               end
@@ -47,9 +47,9 @@ describe Roda do
               it 'returns true for ERB block' do
                 # Create binding with __in_erb_template defined
                 eval_binding = binding
-                eval_binding.eval("__in_erb_template = true")
+                eval_binding.eval('__in_erb_template = true')
                 # Create block that uses that binding
-                block = eval("proc { }", eval_binding)
+                block = eval('proc { }', eval_binding, __FILE__, __LINE__)
 
                 assert instance.send(:erb_block?, block)
               end
@@ -70,10 +70,10 @@ describe Roda do
               it 'returns true for HAML block' do
                 # Create binding with _hamlout defined
                 eval_binding = binding
-                eval_binding.eval("_hamlout = true")
+                eval_binding.eval('_hamlout = true')
 
                 # Create block that uses that binding
-                block = eval("proc { '%p content' }", eval_binding)
+                block = eval("proc { '%p content' }", eval_binding, __FILE__, __LINE__)
 
                 assert instance.send(:haml_block?, block)
               end

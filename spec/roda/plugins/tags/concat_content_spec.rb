@@ -56,7 +56,7 @@ describe Roda do
                     <% end %>
                   TEMPLATE
 
-                  _(tag_app(template)).must_equal "level1level2"
+                  _(tag_app(template)).must_equal 'level1level2'
                 end
 
                 it 'works with tags and concat_content' do
@@ -79,7 +79,7 @@ describe Roda do
                   plugin :tags
 
                   # Mock HAML-specific methods
-                  def is_haml?; true; end
+                  def is_haml? = true
 
                   # Track haml_concat calls
                   def haml_concat(text)
@@ -113,7 +113,7 @@ describe Roda do
 
               it 'handles complex objects' do
                 obj = Object.new
-                def obj.to_s; 'object'; end
+                def to_s = 'object'
 
                 _(instance.concat_content(obj)).must_equal 'object'
               end
@@ -126,7 +126,7 @@ describe Roda do
               it 'processes multiple concat calls in HAML' do
                 instance.concat_content('first')
                 instance.concat_content('second')
-                _(instance.haml_outputs).must_equal ['first', 'second']
+                _(instance.haml_outputs).must_equal %w[first second]
               end
 
               it 'when using - returns a single output' do
@@ -146,7 +146,7 @@ describe Roda do
                 Class.new(Roda) do
                   plugin :tags
                   # Ensure is_haml? returns false
-                  def is_haml?; false; end
+                  def is_haml? = false
                 end
               end
               let(:instance) { plain_app.new({}) }

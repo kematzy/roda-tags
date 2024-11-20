@@ -34,7 +34,9 @@ describe Roda do
               end
 
               # it 'escapes HTML in values' do
-              #   html = tag_helpers_app('<%= text_field_tag(:username, value: "<script>alert(\'xss\')</script>") %>')
+              #   html = tag_helpers_app(
+              #     '<%= text_field_tag(:username, value: "<script>alert(\'xss\')</script>") %>'
+              #   )
               #   _(html).must_include('&lt;script&gt;')
               #   _(html).wont_include('<script>')
               # end
@@ -145,8 +147,8 @@ describe Roda do
 
               it 'supports multiple data attributes' do
                 _(tag_helpers_app(
-                  '<%= text_field_tag(:username, data: { value: "test", type: "user" }) %>'
-                ))
+                    '<%= text_field_tag(:username, data: { value: "test", type: "user" }) %>'
+                  ))
                   .must_have_tag('input[@data-value="test"][@data-type="user"]')
               end
             end

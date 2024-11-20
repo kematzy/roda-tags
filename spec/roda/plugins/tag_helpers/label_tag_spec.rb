@@ -69,7 +69,6 @@ describe Roda do
               it 'handles required with empty label' do
                 _(tag_helpers_app('<%= label_tag(:username, label: "", required: true) %>'))
                   .must_have_tag('label', '')
-                  # .must_have_tag('label', '<span>*</span>')
               end
             end
             # /required field handling
@@ -130,7 +129,7 @@ describe Roda do
                 ERB
 
                 _(tag_helpers_app(template))
-                  .must_have_tag('label', /Username: <span>\*<\/span>.*<input/m)
+                  .must_have_tag('label', %r{Username: <span>\*</span>.*<input}m)
               end
             end
             # /block content
@@ -138,7 +137,9 @@ describe Roda do
             describe 'security concerns' do
               it 'escapes HTML in label text' do
                 skip 'TODO: add suppport for value sanitation'
-                # html = tag_helpers_app('<%= label_tag(:username, label: "<script>alert(\'xss\')</script>") %>')
+                # html = tag_helpers_app(
+                #   '<%= label_tag(:username, label: "<script>alert(\'xss\')</script>") %>'
+                #   )
                 # _(html).must_include '&lt;script&gt;'
                 # _(html).wont_include '<script>'
               end
