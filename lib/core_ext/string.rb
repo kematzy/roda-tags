@@ -1,4 +1,6 @@
 # The inflector extension adds inflection instance methods to String, which allows the easy 
+# frozen_string_literal: false
+
 # transformation of words from singular to plural, class names to table names, modularized class
 # names to ones without, and class names to foreign keys.  It exists for 
 # backwards compatibility to legacy Sequel code.
@@ -24,9 +26,10 @@ class String
     @plurals   = []
     @singulars = []
     @uncountables = []
-    
+
     # Proc that is instance evaled to create the default inflections for both the
     # model inflector and the inflector extension.
+    # rubocop:disable Metrics/BlockLength
     DEFAULT_INFLECTIONS_PROC = proc do
       plural(/$/, 's')
       plural(/s$/i, 's')
@@ -66,10 +69,10 @@ class String
       irregular('quiz', 'quizzes')
       irregular('testis', 'testes')
 
-      uncountable(%w(equipment information rice money species series fish sheep news))
+      uncountable(%w[equipment information rice money species series fish sheep news])
     end
-    
-    
+    # rubocop:enable Metrics/BlockLength
+
     class << self
       # Array of 2 element arrays, first containing a regex, and the second containing a 
       # substitution pattern, used for plurization.
@@ -96,7 +99,7 @@ class String
         @singulars    = []
         @uncountables = []
       else
-        instance_variable_set("@#{scope}", [])
+        instance_variable_set(:"@#{scope}", [])
       end
     end
 
@@ -151,7 +154,7 @@ class String
   # Yield the Inflections module if a block is given, and return
   # the Inflections module.
   def self.inflections
-    yield Inflections if block_given?
+    yield Inflections if defined?(yield)
     Inflections
   end
 
@@ -171,7 +174,7 @@ class String
     s[0...1] = s[0...1].downcase unless first_letter_in_uppercase == :upper
     s
   end
-  alias_method :camelcase, :camelize
+  alias camelcase camelize
 
   # Singularizes and camelizes the string.  Also strips out all characters preceding
   # and including a period (".").
@@ -248,7 +251,7 @@ class String
   def pluralize
     result = dup
     unless Inflections.uncountables.include?(downcase)
-      Inflections.plurals.each { |(rule, replacement)| break if result.gsub!(rule, replacement) } 
+      Inflections.plurals.each { |(rule, replacement)| break if result.gsub!(rule, replacement) }
     end
     result
   end
@@ -265,7 +268,7 @@ class String
   def singularize
     result = dup
     unless Inflections.uncountables.include?(downcase)
-      Inflections.singulars.each { |(rule, replacement)| break if result.gsub!(rule, replacement) } 
+      Inflections.singulars.each { |(rule, replacement)| break if result.gsub!(rule, replacement) }
     end
     result
   end
@@ -289,9 +292,9 @@ class String
   #   "man from the boondocks".titleize #=> "Man From The Boondocks"
   #   "x-men: the last stand".titleize #=> "X Men: The Last Stand"
   def titleize
-    underscore.humanize.gsub(/\b([a-z])/) { |x| x[-1..-1].upcase }
+    underscore.humanize.gsub(/\b([a-z])/) { |x| x[-1..].upcase }
   end
-  alias_method :titlecase, :titleize
+  alias titlecase titleize
 
   # The reverse of camelize. Makes an underscored form from the expression in the string.
   # Also changes '::' to '/' to convert namespaces to paths.
@@ -300,15 +303,13 @@ class String
   #   "ActiveRecord".underscore #=> "active_record"
   #   "ActiveRecord::Errors".underscore #=> active_record/errors
   def underscore
-    gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-      .gsub(/([a-z\d])([A-Z])/, '\1_\2').tr('-', '_').downcase
+    gsub('::', '/').gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+                   .gsub(/([a-z\d])([A-Z])/, '\1_\2').tr('-', '_').downcase
   end
 end
 
-
 # Ripped from the Sequel gem by Jeremy Evans
-# 
-# 
+#
 # Copyright (c) 2007-2008 Sharon Rosner
 # Copyright (c) 2008-2015 Jeremy Evans
 #

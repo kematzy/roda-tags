@@ -1,18 +1,17 @@
+# frozen_string_literal: false
+
 require 'roda'
+
 require_relative '../../core_ext/hash'   unless {}.respond_to?(:to_html_attributes)
 require_relative '../../core_ext/blank'  unless Object.new.respond_to?(:blank?)
 
-
 class Roda
-  
-  # 
+  # add module documentation
   module RodaPlugins
-    
     # TODO: Add documentation here
     #
     #
     module RodaTags
-      
       # default options
       OPTS = {
         # toggle for XHTML formatted output in case of legacy
@@ -20,72 +19,72 @@ class Roda
         # toggle for adding newlines after output
         tag_add_newlines_after_tags: true
       }.freeze
-      
+
       # Tags that should be rendered in multiple lines, like...
-      # 
+      #
       #   <body>
       #     <snip...>
       #   </body>
       #
-      MULTI_LINE_TAGS = %w( 
-        a address applet bdo big blockquote body button caption center 
-        colgroup dd dir div dl dt fieldset form frameset head html iframe 
-        map noframes noscript object ol optgroup pre script section select small 
-        style table tbody td tfoot th thead title tr tt ul 
-      )
-    
+      MULTI_LINE_TAGS = %w[
+        a address applet bdo big blockquote body button caption center colgroup dd dir div dl dt
+        fieldset form frameset head html iframe map noframes noscript object ol optgroup pre
+        script section select small style table tbody td tfoot th thead title tr tt ul
+      ].freeze
+
       # Self closing tags, like...
-      # 
+      #
       #   <hr> or <hr />
       #
-      SELF_CLOSING_TAGS = %w( area base br col frame hr img input link meta param )
-    
+      SELF_CLOSING_TAGS = %w[
+        area base br col frame hr img input link meta param
+      ].freeze
+
       # Tags that should be rendered in a single line, like...
-      # 
+      #
       #   <h1>Header</h1>
       #
-      SINGLE_LINE_TAGS = %w( 
-        abbr acronym b cite code del dfn em h1 h2 h3 h4 h5 h6 i kbd 
+      SINGLE_LINE_TAGS = %w[
+        abbr acronym b cite code del dfn em h1 h2 h3 h4 h5 h6 i kbd
         label legend li option p q samp span strong sub sup var
-      )
-    
+      ].freeze
+
       # Boolean attributes, ie: attributes like...
-      # 
+      #
       #   <option value="a" selected="selected">A</option>
       #
-      BOOLEAN_ATTRIBUTES = %w(autofocus checked disabled multiple readonly required selected)
-      
-      
+      BOOLEAN_ATTRIBUTES = %w[
+        autofocus checked disabled multiple readonly required selected
+      ].freeze
+
       # Depend on the render plugin, since this plugin only makes
       # sense when the render plugin is used.
-      def self.load_dependencies(app, opts = OPTS)
+      def self.load_dependencies(app, _opts = OPTS)
         app.plugin :render
       end
-      
+
       def self.configure(app, opts = {})
-        if app.opts[:tags]
-          opts = app.opts[:tags][:orig_opts].merge(opts)
-        else
-          opts = OPTS.merge(opts)
-        end
-        
+        opts = if app.opts[:tags]
+                 app.opts[:tags][:orig_opts].merge(opts)
+               else
+                 OPTS.merge(opts)
+               end
+
         app.opts[:tags]             = opts.dup
         app.opts[:tags][:orig_opts] = opts
       end
-      
-      # 
+
+      # add module documentation
       module ClassMethods
-        
         # Return the uitags options for this class.
         def tags_opts
           opts[:tags]
         end
-        
       end
-      
-      # 
+
+      # add module documentation
+      # rubocop:disable Metrics/ModuleLength
       module InstanceMethods
-        
         # Returns markup for tag _name_. 
         # 
         # Optionally _contents_ may be passed, which is literal content for spanning tags such as 
@@ -177,22 +176,22 @@ class Roda
         #   tag(:option, 'PHP', value: "0", selected: false)
         #   # => <option value="0">PHP</option>
         # 
+        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         def tag(*args, &block)
           name = args.first
           attrs = args.last.is_a?(Hash) ? args.pop : {}
           newline = attrs[:newline] # save before it gets tainted
-        
-          tag_content = block_given? ? capture_html(&block) : args[1]  # content
-        
+
+          tag_content = block_given? ? capture_html(&block) : args[1] # content
+
           if self_closing_tag?(name)
             tag_html = self_closing_tag(name, attrs)
           else
-            tag_html = "#{open_tag(name, attrs)}#{tag_contents_for(name, tag_content, newline)}" 
+            tag_html = "#{open_tag(name, attrs)}#{tag_contents_for(name, tag_content, newline)}"
             tag_html << closing_tag(name)
           end
           block_is_template?(block) ? concat_content(tag_html) : tag_html
         end
-        
         # Update the +:class+ entry in the +attr+ hash with the given +classes+ and returns +attr+.
         # 
         #   attr = { class: 'alert', id: :idval }
@@ -202,49 +201,54 @@ class Roda
         #   merge_attr_classes(attr, [:alert, 'alert-info']) 
         #     #=> { class: 'alert alert-info', id: :idval }
         # 
+        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+
         def merge_attr_classes(attr, *classes)
           attr[:class] = [] if attr[:class].blank?
           attr[:class] = merge_classes(attr[:class], *classes)
           attr[:class] = nil if attr[:class] == '' # set to nil to remove from tag output
           attr
         end
-          
         # Return an alphabetized string that includes all given class values.
         # 
         # Handles a combination of arrays, strings & symbols being passed in.
         # 
+
         #   attr = { class: 'alert', id: :idval }
-        #   
         #   merge_classes(attr[:class], ['alert', 'alert-info'])  #=> 'alert alert-info'
-        # 
+        #
         #   merge_classes(attr[:class], :text)  #=> 'alert text'
         # 
         #   merge_classes(attr[:class], [:text, :'alert-info'])  #=> 'alert alert-info text'
-        # 
-        # 
+        #
+        # rubocop:disable Metrics/AbcSize
         def merge_classes(*classes)
           klasses = []
           classes.each do |c|
             klasses << c.to_s if c.is_a?(Symbol)
-            c.split(/\s+/).each { |x| klasses << x.to_s  } if c.is_a?(String)
+            c.split(/\s+/).each { |x| klasses << x.to_s } if c.is_a?(String)
             c.each { |i| klasses << i.to_s } if c.is_a?(Array)
           end
           klasses.compact.uniq.sort.join(' ').strip
         end
-        
-        
+        # rubocop:enable Metrics/AbcSize
+
         ## HELPERS
-        
-        
-        # 
+
+        # rubocop:disable Metrics/MethodLength
         def capture(block = '') # :nodoc:
           buf_was = @output
-          @output = block.is_a?(Proc) ? (eval('@_out_buf', block.binding) || @output) : block
+          @output = if block.is_a?(Proc)
+                      eval('@_out_buf', block.binding, __FILE__, __LINE__ - 1) || @output
+                    else
+                      block
+                    end
           yield
           ret = @output
           @output = buf_was
           ret
         end
+        # rubocop:enable Metrics/MethodLength
 
         # Captures the html from a block of template code for erb or haml
         # 
@@ -252,14 +256,14 @@ class Roda
         # 
         #   capture_html(&block) => "...html..."
         # 
-        def capture_html(*args, &block) 
-          if self.respond_to?(:is_haml?) && is_haml?
-            block_is_haml?(block) ? capture_haml(*args, &block) : block.call
+        def capture_html(*args, &block)
+          if respond_to?(:is_haml?) && is_haml?
+            block_is_haml?(block) ? capture_haml(*args, &block) : yield
           elsif erb_buffer?
             result_text = capture_block(*args, &block)
-            result_text.present? ? result_text : (block_given? && block.call(*args))
+            result_text.present? ? result_text : (block_given? && yield(*args))
           else # theres no template to capture, invoke the block directly
-            block.call(*args)
+            yield(*args)
           end
         end
 
@@ -269,9 +273,8 @@ class Roda
         # 
         #   concat_content("This will be output to the template buffer in erb or haml")
         # 
-        def concat_content(text = '') 
-          if self.respond_to?(:is_haml?) && is_haml?
-            haml_concat(text)
+        def concat_content(text = '')
+          if respond_to?(:is_haml?) && is_haml?
           elsif erb_buffer?
             buffer_concat(text)
           else # theres no template to concat, return the text directly
@@ -286,27 +289,24 @@ class Roda
         # 
         #   block_is_template?(block)
         # 
-        def block_is_template?(block) 
-           block && (erb_block?(block) || 
-             (self.respond_to?(:block_is_haml?) && block_is_haml?(block)))
+        def block_is_template?(block)
+          block && (erb_block?(block) || (respond_to?(:block_is_haml?) && block_is_haml?(block)))
         end
-        
-        # 
+
         def output_is_xhtml?
           opts[:tags][:tag_output_format_is_xhtml]
         end
-        
-        
+
         private
-        
-        
         # Return an opening tag of _name_, with _attrs_.
-        def open_tag(name, attrs = {}) 
+
+        def open_tag(name, attrs = {})
           "<#{name}#{normalize_html_attributes(attrs)}>"
         end
-      
         # Return closing tag of _name_.
-        def closing_tag(name) 
+
+        #
+        def closing_tag(name)
           "</#{name}>#{add_newline?}"
         end
       
@@ -316,11 +316,11 @@ class Roda
         # +name+ : the name of the tag to create
         # +attrs+ : a hash where all members will be mapped to key="value"
         # 
-        def self_closing_tag(name, attrs = {}) 
-          newline = (attrs[:newline].nil?) ? nil : attrs.delete(:newline)
+
+        def self_closing_tag(name, attrs = {})
+          newline = attrs[:newline].nil? ? nil : attrs.delete(:newline)
           "<#{name}#{normalize_html_attributes(attrs)}#{is_xhtml?}#{add_newline?(newline)}"
         end
-      
         # Based upon the context, wraps the tag content in '\n' (newlines)
         #  
         # ==== Examples
@@ -335,65 +335,68 @@ class Roda
         #   tag_contents_for(:option, 'content', true)
         #   # => <option...>\ncontent\n</option>
         # 
+
         def tag_contents_for(name, content, newline = nil)
           if multi_line_tag?(name)
-            "#{add_newline?(newline)}#{content}#{add_newline?(newline)}".gsub(/\n\n/, "\n")
+            "#{add_newline?(newline)}#{content}#{add_newline?(newline)}".gsub("\n\n", "\n")
           elsif single_line_tag?(name) && newline == true
             "#{add_newline?(newline)}#{content}#{add_newline?(newline)}"
           else
             content.to_s
           end
         end
-      
         # Normalize _attrs_, replacing boolean keys with their mirrored values.
-        def normalize_html_attributes(attrs = {}) 
+
+        # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
+        def normalize_html_attributes(attrs = {})
           return if attrs.blank?
+
           attrs.delete(:newline) # remove newline from attributes
           # look for data attrs
-          if value = attrs.delete(:data)
+          if (value = attrs.delete(:data))
             # NB!! convert key to symbol for [].sort
-            value.each { |k, v| attrs[:"data-#{k.to_s}"] = v } 
+            value.each { |k, v| attrs[:"data-#{k}"] = v }
           end
           attrs.each do |name, val|
             if boolean_attribute?(name)
               val == true ? attrs[name] = name : attrs.delete(name)
             end
           end
-          return attrs.empty? ? '' : ' ' + attrs.to_html_attributes
+          attrs.empty? ? '' : " #{attrs.to_html_attributes}"
         end
-      
         # Check if _name_ is a boolean attribute.
-        def boolean_attribute?(name) 
+        # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
+
+        def boolean_attribute?(name)
           BOOLEAN_ATTRIBUTES.include?(name.to_s)
         end
-      
         # Check if tag _name_ is a self-closing tag.
-        def self_closing_tag?(name) 
+
+        def self_closing_tag?(name)
           SELF_CLOSING_TAGS.include?(name.to_s)
         end
-      
         # Check if tag _name_ is a single line tag.
-        def single_line_tag?(name) 
+
+        #
+        def single_line_tag?(name)
           SINGLE_LINE_TAGS.include?(name.to_s)
         end
-      
         # Check if tag _name_ is a multi line tag.
-        def multi_line_tag?(name) 
+
+        def multi_line_tag?(name)
           MULTI_LINE_TAGS.include?(name.to_s)
         end
       
         # Returns a '>' or ' />' string based on the output format used, ie: HTML vs XHTML
-        def xhtml? 
+        def xhtml?
           opts[:tags][:tag_output_format_is_xhtml] ? ' />' : '>'
         end
-        alias_method :is_xhtml?, :xhtml?
-        
-        # 
-        def add_newline?(add_override = nil) 
-          add = (add_override.nil?) ? opts[:tags][:tag_add_newlines_after_tags] : add_override
+        alias is_xhtml? xhtml?
+
+        def add_newline?(add_override = nil)
+          add = add_override.nil? ? opts[:tags][:tag_add_newlines_after_tags] : add_override
           add == true ? "\n" : ''
         end
-        
         # concat contents to the buffer if present
         # 
         # ==== Examples
@@ -403,7 +406,7 @@ class Roda
         def buffer_concat(txt)
           @_out_buf << txt if buffer?
         end
-        alias_method :erb_concat, :buffer_concat
+        alias erb_concat buffer_concat
 
         # Used to capture the contents of html/ERB block
         # 
@@ -411,42 +414,43 @@ class Roda
         # 
         #   capture_block(&block) => '...html...'
         # 
-        def capture_block(*args, &block) 
-          with_output_buffer { block_given? && block.call(*args) }
+        def capture_block(*args)
+          with_output_buffer { block_given? && yield(*args) }
         end
-        alias_method :capture_erb, :capture_block
-    
         # Used to direct the buffer for the erb capture
+        alias capture_erb capture_block
+
         def with_output_buffer(buf = '')
-          @_out_buf, old_buffer = buf, @_out_buf
+          old_buffer = @_out_buf
+          @_out_buf = buf
           yield
           @_out_buf
         ensure
           @_out_buf = old_buffer
         end
-        alias_method :erb_with_output_buffer, :with_output_buffer
+        alias erb_with_output_buffer with_output_buffer
 
         # returns true if the buffer is not empty
-        def buffer? 
+        def buffer?
           !@_out_buf.nil?
         end
-        alias_method :have_buffer?, :buffer?
-        alias_method :erb_buffer?,  :buffer?
+        alias have_buffer? buffer?
+        alias erb_buffer? buffer?
 
         #
         def erb_block?(block)
-          have_buffer? || block && eval('defined? __in_erb_template', block.binding)
+          have_buffer? ||
+            (block && eval('defined? __in_erb_template', block.binding, __FILE__, __LINE__ - 1))
         end
-        alias_method :is_erb_block?, :erb_block?
-        alias_method :is_erb_template?, :erb_block?
-          
-        
-      end # /InstanceMethods
-      
-    end # /RodaTags
-    
+        alias is_erb_block? erb_block?
+        alias is_erb_template? erb_block?
+      end
+      # rubocop:enable Metrics/ModuleLength
+      # /InstanceMethods
+    end
+    # /RodaTags
+
     register_plugin(:tags, RodaTags)
-    
-  end # /RodaPlugins
-  
+  end
+  # /RodaPlugins
 end

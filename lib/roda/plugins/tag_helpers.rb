@@ -1,13 +1,13 @@
+# frozen_string_literal: true
+
 require 'roda'
 require_relative '../../core_ext/string' unless ''.respond_to?(:titleize)
 # require_relative '../../core_ext/object' unless :symbol.respond_to?(:in?)
 
 class Roda
-  
-  # 
+  # add module documentation
   module RodaPlugins
-    
-    # TODO: add documentation here
+    # add module documentation
     module RodaTagHelpers
       # default options
       OPTS = {
@@ -20,14 +20,13 @@ class Roda
         tags_forms_default_class:   '', # 'form-control',
         
       }.freeze
-      
-      
+
       # Depend on the render plugin, since this plugin only makes
       # sense when the render plugin is used.
       def self.load_dependencies(app, opts = OPTS)
         app.plugin :tags, opts
       end
-      
+
       def self.configure(app, opts = {})
         if app.opts[:tag_helpers]
           opts = app.opts[:tag_helpers][:orig_opts].merge(opts)
@@ -38,19 +37,18 @@ class Roda
         app.opts[:tag_helpers]             = opts.dup
         app.opts[:tag_helpers][:orig_opts] = opts
       end
-      
-      # 
+
+      # add module documentation
       module ClassMethods
         # Return the uitags options for this class.
         def tag_helpers_opts
           opts[:tag_helpers]
         end
-        
       end
-      
-      # 
+
+      # add module documentation
+      # rubocop:disable Metrics/ModuleLength
       module InstanceMethods
-        
         # Constructs a form without object based on options
         # 
         # ==== Examples
@@ -76,7 +74,7 @@ class Roda
         # Multipart support via:
         # 
         #   <% form_tag('/register', multipart: true ) %>
-        #   
+        #
         #   <% form_tag('/register', multipart: 'multipart/form-data' ) %>
         #
         #   <% form_tag('/register', enctype: 'multipart/form-data' ) %>
@@ -84,19 +82,20 @@ class Roda
         #       <form enctype="multipart/form-data" method="post" action="/register">
         #         ...
         #       </form>
-        # 
-        def form_tag(action, attrs = {}, &block) 
+        #
+        def form_tag(action, attrs = {}, &block)
           attrs.reverse_merge!(method: :post, action: action)
           method = attrs[:method]
+
           # Unless the method is :get, fake out the method using :post
           attrs[:method] = :post unless attrs[:method] == :get
-          faux_method_tag = method.to_s =~ /post|get/ ? '' : faux_method(method)
+          faux_method_tag = /post|get/.match?(method.to_s) ? '' : faux_method(method)
           # set the enctype to multipart-form if we got a @multipart form
           attrs[:enctype] = 'multipart/form-data' if attrs.delete(:multipart) || @multipart
           captured_html = block_given? ? capture_html(&block) : ''
           concat_content(tag(:form, faux_method_tag + captured_html, attrs))
         end
-        
+
         # Constructs a label tag from the given options
         # 
         # ==== Examples
@@ -127,6 +126,8 @@ class Roda
         def label_tag(field, attrs = {}, &block) 
           attrs.reverse_merge!(label: field.to_s.titleize, for: field)
         
+        #
+        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
           label_text = attrs.delete(:label)
           # handle FALSE & nil values
           label_text = '' if label_text == false
@@ -138,7 +139,7 @@ class Roda
               label_text = "#{label_text} #{opts_tag_helpers[:tags_label_required_str]}"
             end
           end
-        
+
           if block_given? # label with inner content
             label_content = label_text + capture_html(&block)
             concat_content(tag(:label, label_content, attrs))
@@ -146,7 +147,8 @@ class Roda
             tag(:label, label_text, attrs)
           end
         end
-        
+        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+
         # Constructs a hidden field input from the given options
         #
         # ==== Examples
@@ -172,15 +174,15 @@ class Roda
         #   <%= hidden_field_tag(:snippet_name, id: false ) %>
         #     #=>
         #       <input name="snippet_name" type="hidden">
-        #   
-        def hidden_field_tag(name, attrs = {}) 
+        #
+        def hidden_field_tag(name, attrs = {})
           attrs.reverse_merge!(name: name, value: '', type: :hidden)
           attrs = add_css_id(attrs, name)
           tag(:input, attrs)
         end
-        alias_method :hiddenfield_tag, :hidden_field_tag
-        
         # Creates a standard text field; use these text fields to input smaller chunks of text like 
+        alias hiddenfield_tag hidden_field_tag
+
         # a username or a search query.
         # 
         # ==== Examples
@@ -236,15 +238,15 @@ class Roda
         #     <input class="text" id="name" name="name" readonly="readonly" type="text">
         # 
         #
-        def text_field_tag(name, attrs = {}) 
+        def text_field_tag(name, attrs = {})
           attrs.reverse_merge!(name: name, type: :text)
           attrs = add_css_id(attrs, name)
           attrs = add_css_class(attrs, :text)
           attrs = add_ui_hint(attrs)
           tag(:input, attrs)
         end
-        alias_method :textfield_tag, :text_field_tag
-        
+        alias textfield_tag text_field_tag
+
         # Constructs a password field input from the given options
         # 
         # ==== Examples
@@ -285,18 +287,17 @@ class Roda
         # 
         #   password_field_tag(:name, disabled: true)
         #     #=> <input class="text" id="name" disabled="disabled" name="name" type="password">
-        # 
-        def password_field_tag(name, attrs = {}) 
+        #
+        def password_field_tag(name, attrs = {})
           attrs.reverse_merge!(name: name, type: :password)
           attrs = add_css_id(attrs, name)
           attrs = add_css_class(attrs, :text) # deliberately giving it the .text class
           attrs = add_ui_hint(attrs)
           tag(:input, attrs)
         end
-        alias_method :passwordfield_tag, :password_field_tag
-        
-        
         # Creates a file upload field. If you are using file uploads then you will also 
+        alias passwordfield_tag password_field_tag
+
         # need to set the multipart option for the form tag:
         # 
         #   <% form_tag '/upload', :multipart => true do %>
@@ -349,8 +350,8 @@ class Roda
         #   file_field_tag(:photo, accept: 'image/png,image/jpeg')
         #     #=> 
         #      <input accept="image/png,image/jpeg" class="file" ... type="file">
-        # 
-        def file_field_tag(name, attrs = {}) 
+        #
+        def file_field_tag(name, attrs = {})
           attrs.reverse_merge!(name: name, type: :file)
           attrs.delete(:value) # can't use value, so delete it if present
           attrs = add_css_id(attrs, name)
@@ -358,9 +359,8 @@ class Roda
           attrs = add_ui_hint(attrs)
           tag(:input, attrs)
         end
-        alias_method :filefield_tag, :file_field_tag
-        
-        
+        alias filefield_tag file_field_tag
+
         # Constructs a textarea input from the given options
         # 
         # TODO: enable :escape functionality...
@@ -412,8 +412,8 @@ class Roda
         #   
         #   textarea_tag(:description, readonly: true)
         #     #=> <textarea id="description" name="description" readonly="readonly"></textarea>
-        #   
-        def textarea_tag(name, attrs = {}) 
+        #
+        def textarea_tag(name, attrs = {})
           attrs.reverse_merge!(name: name)
           attrs = add_css_id(attrs, name)
           if size = attrs.delete(:size)
@@ -423,8 +423,6 @@ class Roda
           attrs   = add_ui_hint(attrs)
           tag(:textarea, content, attrs)
         end
-        alias_method :text_area_tag, :textarea_tag
-        
         # Creates a field set for grouping HTML form elements.
         # 
         # ==== Examples
@@ -439,6 +437,8 @@ class Roda
         # 
         #   <% field_set_tag 'User Details' do %>
         #     <p><%= text_field_tag 'name' %></p>
+        alias text_area_tag textarea_tag
+
         #   <% end %>
         #     #=>
         #       <fieldset id="fieldset-user-details">
@@ -478,7 +478,8 @@ class Roda
         #         <snip...>
         # 
         # @api public
-        def field_set_tag(*args, &block) 
+        # rubocop:disable Metrics/AbcSize
+        def fieldset_tag(*args, &block)
           attrs = args.last.is_a?(Hash) ? args.pop : {}
           attrs = add_css_id(attrs, ['fieldset', args.first].compact.join('-'))
           legend_text = args.first.is_a?(String || Symbol) ? args.first : attrs.delete(:legend)
@@ -486,12 +487,13 @@ class Roda
           captured_html = block_given? ? capture_html(&block) : ''
           concat_content(tag(:fieldset, legend_html + captured_html, attrs))
         end
-        alias_method :fieldset_tag, :field_set_tag
-        
         # Return a legend with _contents_.
         # 
         # ==== Examples
         # 
+        # rubocop:enable Metrics/AbcSize
+        alias field_set_tag fieldset_tag
+
         #   legend_tag('User Details')
         #     #=> <legend>User Details</legend>
         # 
@@ -504,11 +506,11 @@ class Roda
         # 
         #   legend_tag('User Details', class: 'some-class')
         #     #=> <legend class="some-class">User Details</legend>
-        # 
-        def legend_tag(contents, attrs = {}) 
+        #
+        def legend_tag(contents, attrs = {})
           tag(:legend, contents, attrs)
         end
-        
+
         # Creates a checkbox element.
         # 
         # ==== Examples
@@ -543,17 +545,17 @@ class Roda
         # 
         #   check_box_tag(:rock, disabled: true)
         #     #=> <input class="checkbox" disabled="disabled" ... type="checkbox" value="1">
-        # 
-        def check_box_tag(name, attrs = {}) 
+        #
+        def check_box_tag(name, attrs = {})
           attrs.reverse_merge!(name: name, type: :checkbox, checked: false, value: 1)
           attrs = add_css_id(attrs, name)
           attrs = add_css_class(attrs, :checkbox)
           attrs = add_ui_hint(attrs)
           tag(:input, attrs)
         end
-        alias_method :checkbox_tag, :check_box_tag
-        
         # Creates a radio button; use groups of radio buttons named the same to allow users to 
+        alias checkbox_tag check_box_tag
+
         # select from a group of options.
         # 
         # ==== Examples
@@ -590,8 +592,8 @@ class Roda
         #   radio_button_tag(:yes, disabled: true)
         #     #=> <input disabled="disabled" class="checkbox" id="yes_1" ... value="1">
         # 
-        # 
-        def radio_button_tag(name, attrs = {}) 
+        #
+        def radio_button_tag(name, attrs = {})
           attrs.reverse_merge!(name: name, type: :radio, checked: false, value: 1)
           attrs = add_css_id(attrs, name)
           # id_value = [field.to_s,'_',value].join
@@ -600,8 +602,8 @@ class Roda
           attrs = add_ui_hint(attrs)
           tag(:input, attrs)
         end
-        alias_method :radiobutton_tag, :radio_button_tag
-        
+        alias radiobutton_tag radio_button_tag
+
         # Creates a submit button with the text value as the caption.
         # 
         # ==== Examples
@@ -629,15 +631,13 @@ class Roda
         # 
         #   <%= submit_tag(ui_hint: 'a user hint') %>
         #     #=> <input name="submit" title="a user hint" type="submit" value="Save Form">
-        # 
-        def submit_tag(value = 'Save Form', attrs = {}) 
           value, attrs = 'Save Form', value if value.is_a?(Hash)
+        #
+        def submit_tag(value = 'Save Form', attrs = {})
           attrs.reverse_merge!(type: :submit, name: :submit, value: value)
           attrs = add_ui_hint(attrs)
           self_closing_tag(:input, attrs)
         end
-        alias_method :submit_button, :submit_tag
-      
         # Displays an image which when clicked will submit the form.
         #  
         # ==== Examples
@@ -653,11 +653,13 @@ class Roda
         #   image_submit_tag(@img, class 'search-button')
         #     #=> <input class="search-button" src="/img/btn.png" type="image">
         # 
+        alias submit_button submit_tag
+
         def image_submit_tag(src, attrs = {})
           tag(:input, { type: :image, src: src }.merge(attrs))
         end
-        alias_method :imagesubmit_tag, :image_submit_tag
-        
+        alias imagesubmit_tag image_submit_tag
+
         # Creates a reset button with the text value as the caption.
         # 
         # ==== Examples
@@ -689,8 +691,6 @@ class Roda
           attrs = add_ui_hint(attrs)
           self_closing_tag(:input, attrs)
         end
-        alias_method :reset_button, :reset_tag
-        
         # Creates a dropdown selection menu.
         # 
         # If the :multiple option is set to true, a multiple choice selection box
@@ -731,6 +731,8 @@ class Roda
         # 
         # With Options values as an Array
         # 
+        alias reset_button reset_tag
+
         #   select_tag(:letters, @letters, selected: :a)
         #     #=> 
         #       <select id="letters" name="letters">
@@ -783,15 +785,17 @@ class Roda
         #         <option selected="selected" value="a">A</option>
         #         <snip...>
         # 
-        # 
-        def select_tag(name, options, attrs = {}) 
+        #
+        def select_tag(name, options, attrs = {})
           options = options.to_a.reverse if options.is_a?(Hash)
           attrs[:multiple] = true if attrs[:selected].is_a?(Array)
           options_html = select_options(options, attrs)
           attrs.delete(:selected)
           # attrs = add_css_id(attrs, name)
           add_css_id(attrs, name)
-          html_name = (attrs[:multiple] == true && !name.to_s.end_with?('[]')) ? "#{name}[]" : name
+
+          html_name = attrs[:multiple] == true && !name.to_s.end_with?('[]') ? "#{name}[]" : name
+
           tag(:select, options_html, { name: html_name }.merge(attrs))
         end
         
@@ -809,6 +813,7 @@ class Roda
         #   select_option('a', 'Letter A', selected: false)
         #     #=> <option value="a">Letter A</option>
         # 
+        #
         def select_option(value, key, attrs = {})
           key = value.to_s.titleize if key.blank?
           tag(:option, key, { value: value }.merge(attrs))
@@ -819,41 +824,39 @@ class Roda
         def faux_method(method = 'PUT')
           hidden_field_tag(:input, name: '_method', value: method.to_s.upcase)
         end
-        
-        
+
         private
-        
-        # 
+
         def opts_tag_helpers
           opts[:tag_helpers]
         end
-        
+
         #
-        def html_safe_id(id) 
+        #
+        def html_safe_id(id)
           id.to_s.downcase.gsub(/\W/, '-').gsub('--', '-')
         end
-        
         # do we have a class attrs already
+
         def add_css_class(attrs, new_class = nil)
           merge_attr_classes(attrs, new_class)
         end
-        
+
         #
-        def add_css_id(attrs, new_id) 
+        def add_css_id(attrs, new_id)
           attrs = {} if attrs.nil?
           new_id = '' if new_id.is_a?(Hash)
-          id_value = attrs[:id].nil? ? html_safe_id(new_id.to_s) : attrs.delete(:id) 
+          id_value = attrs[:id].nil? ? html_safe_id(new_id.to_s) : attrs.delete(:id)
           attrs[:id] = id_value.to_s unless id_value == false
           attrs[:id] = nil if attrs[:id] == '' # set to nil to remove from tag output
           attrs
         end
-        
+
         #
-        def add_ui_hint(attrs) 
+        def add_ui_hint(attrs)
           attrs[:title] = attrs.delete(:ui_hint) unless attrs[:ui_hint].nil?
           attrs
         end
-        
         # Return select option elements from _values_ with _options_ passed. 
         #
         # === Options
@@ -863,8 +866,10 @@ class Roda
         # ==== Examples
         # 
         # 
+
+        # rubocop:disable Metrics/MethodLength
         def select_options(values, attrs = {})
-          attrs = {} if attrs.blank? 
+          attrs = {} if attrs.blank?
           values = [] if values.blank?
           normalize_select_prompt(values, attrs)
           # { :a => 'A' }
@@ -881,15 +886,16 @@ class Roda
             end
           end.join
         end
-        
         # Normalize select prompt. 
+        # rubocop:enable Metrics/MethodLength
         #
         # * When +attrs+ contains a :prompt string it is assigned as the prompt
         # * When :prompt is true the default of '- Select Model -' will become the prompt
         # * The prompt is selected unless a specific option is explicitly selected.
         # 
-        def normalize_select_prompt(values, attrs = {}) 
+        def normalize_select_prompt(values, attrs = {})
           return unless attrs.key?(:prompt)
+
           prompt = attrs.delete(:prompt)
           attrs[:selected] = '' unless attrs.include?(:selected)
           prompt_text = prompt == true ? '- Select -' : prompt
@@ -897,23 +903,21 @@ class Roda
         end
         
         # Check if option _key_ is _selected_.
-        def option_selected?(key, selection) 
-          # if Array === selection
-          if selection.is_a?(Array) 
-            # (selection.map { |s| s.to_s }).include?(key.to_s)
-            (selection.map(&:to_s)).include?(key.to_s)
+
+        def option_selected?(key, selection)
+          if selection.is_a?(Array)
+            selection.map(&:to_s).include?(key.to_s)
           else
             selection.to_s == key.to_s
           end
         end
-        
-        
-      end # /InstanceMethods
-      
-    end # /RodaTagHelpers
-    
+      end
+      # rubocop:enable Metrics/ModuleLength
+      # /InstanceMethods
+    end
+    # /RodaTagHelpers
+
     register_plugin(:tag_helpers, RodaTagHelpers)
-    
-  end # /RodaPlugins
-  
+  end
+  # /RodaPlugins
 end

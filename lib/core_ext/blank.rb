@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 # reopening Object class
 class Object
@@ -23,9 +24,9 @@ class Object
   def present?
     !blank?
   end
-  
   # Returns the receiver if it's present otherwise returns +nil+.
   # <tt>object.presence</tt> is equivalent to
+
   #
   #    object.present? ? object : nil
   #
@@ -55,7 +56,6 @@ class NilClass
   def blank?
     true
   end
-  
 end
 
 # reopening FalseClass class
@@ -68,7 +68,6 @@ class FalseClass
   def blank?
     true
   end
-  
 end
 
 # reopening TrueClass class
@@ -81,7 +80,6 @@ class TrueClass
   def blank?
     false
   end
-  
 end
 
 # reopening Array class
@@ -92,8 +90,7 @@ class Array
   #   [1,2,3].blank? # => false
   #
   # @return [true, false]
-  alias_method :blank?, :empty?
-  
+  alias blank? empty?
 end
 
 # reopening Hash class
@@ -104,8 +101,7 @@ class Hash
   #   { key: 'value' }.blank?  # => false
   #
   # @return [true, false]
-  alias_method :blank?, :empty?
-  
+  alias blank? empty?
 end
 
 # reopening String class
@@ -127,7 +123,6 @@ class String
   def blank?
     BLANK_RE === self
   end
-  
 end
 
 # reopening Numeric class
@@ -141,7 +136,6 @@ class Numeric #:nodoc:
   def blank?
     false
   end
-  
 end
 
 # reopening Time class
@@ -154,5 +148,4 @@ class Time #:nodoc:
   def blank?
     false
   end
-  
 end

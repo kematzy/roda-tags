@@ -1,3 +1,4 @@
+# frozen_string_literal: false
 
 # reopening Object class
 class Object
@@ -25,7 +26,6 @@ class Object
   #
   # @return [Object]
   def presence_in(another_object)
-    self.in?(another_object) ? self : nil
+    in?(another_object) ? self : nil
   end
-  
 end
