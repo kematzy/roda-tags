@@ -141,16 +141,25 @@ class Roda
         #
         #   <%= label_tag(:name, required: true) %>
         #     #=> <label for="name">Name: <span>*</span></label>
-          attrs.reverse_merge!(label: field.to_s.titleize, for: field)
-        
         #
         # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         def label_tag(field, attrs = {}, &block)
+          field = field.to_s
+
+          for_text = attrs.delete(:for)
+          # handle FALSE & nil values
+          for_text = field if for_text == false
+          for_text = field if for_text.nil?
+
+          attrs.reverse_merge!(label: field.titleize, for: for_text)
+          # attrs.reverse_merge!(label: field.titleize, for: field)
+
+
           label_text = attrs.delete(:label)
           # handle FALSE & nil values
           label_text = '' if label_text == false
-          label_text = field.to_s.titleize if label_text.nil?
-        
+          label_text = field.titleize if label_text.nil?
+
           unless label_text.to_s.empty?
             label_text << opts_tag_helpers[:tags_label_append_str]
             if attrs.delete(:required)
@@ -199,6 +208,9 @@ class Roda
         #       <input name="snippet_name" type="hidden">
         #
         def hidden_field_tag(name, attrs = {})
+          name = name.to_s
+          attrs = {} if attrs.nil?
+
           attrs.reverse_merge!(name: name, value: '', type: :hidden)
           attrs = add_css_id(attrs, name)
           tag(:input, attrs)
@@ -253,6 +265,9 @@ class Roda
         #     #=>  <input class="text" id="name" name="name" readonly="readonly" type="text">
         #
         def text_field_tag(name, attrs = {})
+          name = name.to_s
+          attrs = {} if attrs.nil?
+
           attrs.reverse_merge!(name: name, type: :text)
           attrs = add_css_id(attrs, name)
           attrs = add_css_class(attrs, :text)
@@ -305,6 +320,9 @@ class Roda
         #     #=> <input class="text" id="name" disabled="disabled" name="name" type="password">
         #
         def password_field_tag(name, attrs = {})
+          name = name.to_s
+          attrs = {} if attrs.nil?
+
           attrs.reverse_merge!(name: name, type: :password)
           attrs = add_css_id(attrs, name)
           attrs = add_css_class(attrs, :text) # deliberately giving it the .text class
@@ -367,6 +385,9 @@ class Roda
         #     #=>  <input accept="image/png,image/jpeg" class="file" ... type="file">
         #
         def file_field_tag(name, attrs = {})
+          name = name.to_s
+          attrs = {} if attrs.nil?
+
           attrs.reverse_merge!(name: name, type: :file)
           attrs.delete(:value) # can't use value, so delete it if present
           attrs = add_css_id(attrs, name)
@@ -428,15 +449,19 @@ class Roda
         #     #=> <textarea id="description" name="description" readonly="readonly"></textarea>
         #
         def textarea_tag(name, attrs = {})
+          name = name.to_s
+          attrs = {} if attrs.nil?
+
           attrs.reverse_merge!(name: name)
           attrs = add_css_id(attrs, name)
-          if size = attrs.delete(:size)
-            attrs[:cols], attrs[:rows] = size.split('x') if size.respond_to?(:split)
+          if (size = attrs.delete(:size)) && size.respond_to?(:split) && size.match?(/^\d+x\d+$/)
+            attrs[:cols], attrs[:rows] = size.split('x')
           end
 
           # TODO: add sanitation support of the value passed
           # content = Rack::Utils.escape_html(attrs.delete(:value).to_s)
           content = attrs.delete(:value).to_s
+
           attrs   = add_ui_hint(attrs)
           tag(:textarea, content, attrs)
         end
@@ -579,6 +604,9 @@ class Roda
         #     #=> <input class="checkbox" disabled="disabled" ... type="checkbox" value="1">
         #
         def check_box_tag(name, attrs = {})
+          name = name.to_s
+          attrs = {} if attrs.nil?
+
           attrs.reverse_merge!(name: name, type: :checkbox, checked: false, value: 1)
           attrs = add_css_id(attrs, name)
           attrs = add_css_class(attrs, :checkbox)
@@ -625,6 +653,9 @@ class Roda
         #     #=> <input disabled="disabled" class="checkbox" id="yes_1" ... value="1">
         #
         def radio_button_tag(name, attrs = {})
+          name = name.to_s
+          attrs = {} if attrs.nil?
+
           attrs.reverse_merge!(name: name, type: :radio, checked: false, value: 1)
           attrs = add_css_id(attrs, name)
           # id_value = [field.to_s,'_',value].join
@@ -818,6 +849,9 @@ class Roda
         #     #     <snip...>
         #
         def select_tag(name, options, attrs = {})
+          name = name.to_s
+          attrs = {} if attrs.nil?
+
           options = options.to_a.reverse if options.is_a?(Hash)
           attrs[:multiple] = true if attrs[:selected].is_a?(Array)
           options_html = select_options(options, attrs)
