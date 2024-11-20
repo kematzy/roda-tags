@@ -135,8 +135,8 @@ class String
     #   irregular('child', 'children') # Creates rules to transform child <-> children
     #
     def self.irregular(singular, plural)
-      plural(Regexp.new("(#{singular[0, 1]})#{singular[1..-1]}$", 'i'), '\1' + plural[1..-1])
-      singular(Regexp.new("(#{plural[0, 1]})#{plural[1..-1]}$", 'i'), '\1' + singular[1..-1])
+      plural(Regexp.new("(#{singular[0, 1]})#{singular[1..]}$", 'i'), "\\1#{plural[1..]}")
+      singular(Regexp.new("(#{plural[0, 1]})#{plural[1..]}$", 'i'), "\\1#{singular[1..]}")
     end
 
     # Specifies a new pluralization rule to transform singular words into plural forms.
@@ -233,8 +233,8 @@ class String
   #   "active_record/errors".camelize #=> "ActiveRecord::Errors"
   #
   def camelize(first_letter_in_uppercase = :upper)
-    s = gsub(%r{/(.?)})   { |x| "::#{x[-1..-1].upcase unless x == '/'}" }
-        .gsub(/(^|_)(.)/) { |x| x[-1..-1].upcase }
+    s = gsub(%r{/(.?)}) { |x| "::#{x[-1..].upcase unless x == "/"}" }
+        .gsub(/(^|_)(.)/) { |x| x[-1..].upcase }
     s[0...1] = s[0...1].downcase unless first_letter_in_uppercase == :upper
     s
   end
@@ -278,10 +278,13 @@ class String
   #   "invalid_name".constantize #=> NameError: invalid_name is not a valid constant name!
   #
   def constantize
-    unless m = /\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/.match(self)
-      raise(NameError, "#{inspect} is not a valid constant name!") 
+    unless (m = /\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/.match(self))
+      raise(NameError, "#{inspect} is not a valid constant name!")
     end
-    Object.module_eval("::#{m[1]}", __FILE__, __LINE__)
+
+    # rubcop:disable Style/DocumentDynamicEvalDefinition
+    Object.module_eval("::#{m[1]}", __FILE__, __LINE__) # ::Post
+    # rubcop:enable Style/DocumentDynamicEvalDefinition
   end
 
   # Replaces underscores (_) in a string with dashes (-).
