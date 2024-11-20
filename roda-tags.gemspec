@@ -1,6 +1,9 @@
-# coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
+# frozen_string_literal: true
+
+lib = File.expand_path('lib', __dir__)
+
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
 require 'roda/tags/version'
 
 Gem::Specification.new do |spec|
@@ -9,13 +12,14 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Kematzy']
   spec.email         = ['kematzy@gmail.com']
 
-  spec.summary       = %q{A Roda Plugin providing easy creation of flexible HTML tags.}
-  spec.description   = %q{HTML tags functionality for Roda.}
+  spec.summary       = 'A Roda Plugin providing easy creation of flexible HTML tags.'
+  spec.description   = 'HTML tags functionality for Roda.'
   spec.homepage      = 'https://github.com/kematzy/roda-tags/'
   spec.license       = 'MIT'
+  spec.required_ruby_version = '>= 3.0.0'
 
-  # # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
-  # # delete this section to allow pushing this gem to any host.
+  # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
+  # delete this section to allow pushing this gem to any host.
   # if spec.respond_to?(:metadata)
   #   spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
   # else
@@ -26,26 +30,18 @@ Gem::Specification.new do |spec|
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
-  
+
   spec.platform         = Gem::Platform::RUBY
-  spec.has_rdoc         = true
   spec.extra_rdoc_files = ['README.md', 'LICENSE.txt']
-  spec.rdoc_options     += ['--quiet', '--line-numbers', '--inline-source', '--title', 'Roda-Tags: HTML tag plugin', '--main', 'README.md']
-  
-  spec.add_runtime_dependency 'roda'
-  spec.add_runtime_dependency 'tilt'
-  spec.add_runtime_dependency 'erubis'
-  
-  spec.add_development_dependency 'bundler', '~> 1.10'
-  spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_development_dependency 'minitest'
-  spec.add_development_dependency 'minitest-hooks'
-  spec.add_development_dependency 'minitest-have_tag'
-  spec.add_development_dependency 'minitest-rg'
-  spec.add_development_dependency 'rack-test'
-  spec.add_development_dependency 'nokogiri'
-  
-  spec.add_development_dependency 'simplecov'
-  spec.add_development_dependency 'rubocop'
-  
+  spec.rdoc_options += [
+    '--quiet', '--line-numbers', '--inline-source', '--title',
+    'Roda-Tags: HTML tag plugin', '--main', 'README.md'
+  ]
+
+  spec.add_dependency('roda', '~> 3.85.0', '>= 3.85.0')
+  spec.add_dependency('tilt', '~> 2.4.0', '>= 2.4.0')
+  spec.add_dependency('erubi', '~> 1.13.0', '>= 1.13.0')
+  spec.add_dependency('haml', '~> 6.3.0', '>= 6.3.0')
+
+  spec.metadata['rubygems_mfa_required'] = 'true'
 end
