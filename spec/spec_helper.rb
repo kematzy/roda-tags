@@ -12,6 +12,7 @@ $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'rubygems'
 require 'roda/tags'
 require 'tilt/erubi'
+require 'rack/session'
 require 'rack/test'
 require 'minitest/autorun'
 require 'minitest/have_tag'
@@ -73,12 +74,14 @@ class Minitest::Spec # rubocop:disable Style/ClassAndModuleChildren
     s
   end
 
+  @cookie_secret = '1756039d-725e-46bd-be72-e77dba01e42b-1756039d-725e-46bd-be72-e77dba01e42b'
+
   # rubocop:disable Metrics/MethodLength
   def _app(&block)
-     c.use Rack::Session::Cookie, :secret=>'topsecret'
     c = Class.new(Roda)
     c.plugin :render, engine: 'erb'
     c.plugin(:not_found) { raise "path #{request.path_info} not found" }
+    c.use Rack::Session::Cookie, secret: @cookie_secret
     c.class_eval do
       def erb(str, opts = {})
         render(opts.merge(inline: str))
