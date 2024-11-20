@@ -679,6 +679,24 @@ class Roda
         end
         alias is_erb_block? erb_block?
         alias is_erb_template? erb_block?
+
+        # Checks if the given block is from a HAML template
+        #
+        # @param block [Proc] The block to check
+        #
+        # @return [Boolean] true if block is from HAML template, false otherwise
+        #
+        # @example With HAML template block
+        #   haml_block?(haml_block)  #=> true
+        #
+        # @example With regular block
+        #   haml_block?(regular_block)  #=> false
+        #
+        def haml_block?(block)
+          block && eval('defined? _hamlout', block.binding, __FILE__, __LINE__ - 1)
+        end
+        alias is_haml_block? haml_block?
+        alias is_haml_template? haml_block?
       end
       # rubocop:enable Metrics/ModuleLength
       # /InstanceMethods
