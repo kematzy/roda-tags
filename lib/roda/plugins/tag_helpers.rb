@@ -35,12 +35,12 @@ class Roda
       # @return [void]
       #
       def self.configure(app, opts = {})
-        if app.opts[:tag_helpers]
-          opts = app.opts[:tag_helpers][:orig_opts].merge(opts)
-        else
-          opts = OPTS.merge(opts)
-        end
-        
+        opts = if app.opts[:tag_helpers]
+                 app.opts[:tag_helpers][:orig_opts].merge(opts)
+               else
+                 OPTS.merge(opts)
+               end
+
         app.opts[:tag_helpers]             = opts.dup
         app.opts[:tag_helpers][:orig_opts] = opts
       end
@@ -141,12 +141,11 @@ class Roda
         #
         #   <%= label_tag(:name, required: true) %>
         #     #=> <label for="name">Name: <span>*</span></label>
-        # 
-        def label_tag(field, attrs = {}, &block) 
           attrs.reverse_merge!(label: field.to_s.titleize, for: field)
         
         #
         # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+        def label_tag(field, attrs = {}, &block)
           label_text = attrs.delete(:label)
           # handle FALSE & nil values
           label_text = '' if label_text == false
@@ -154,7 +153,7 @@ class Roda
         
           unless label_text.to_s.empty?
             label_text << opts_tag_helpers[:tags_label_append_str]
-            if attrs.delete(:required) 
+            if attrs.delete(:required)
               label_text = "#{label_text} #{opts_tag_helpers[:tags_label_required_str]}"
             end
           end
@@ -434,7 +433,10 @@ class Roda
           if size = attrs.delete(:size)
             attrs[:cols], attrs[:rows] = size.split('x') if size.respond_to?(:split)
           end
-          content = attrs.delete(:value)
+
+          # TODO: add sanitation support of the value passed
+          # content = Rack::Utils.escape_html(attrs.delete(:value).to_s)
+          content = attrs.delete(:value).to_s
           attrs   = add_ui_hint(attrs)
           tag(:textarea, content, attrs)
         end
@@ -663,9 +665,12 @@ class Roda
         # @example Adds a `:title` attribute when passed `:ui_hint`. Also works with `:title`.
         #   <%= submit_tag(ui_hint: 'a user hint') %>
         #     #=> <input name="submit" title="a user hint" type="submit" value="Save Form">
-          value, attrs = 'Save Form', value if value.is_a?(Hash)
         #
         def submit_tag(value = 'Save Form', attrs = {})
+          if value.is_a?(Hash)
+            attrs = value
+            value = 'Save Form'
+          end
           attrs.reverse_merge!(type: :submit, name: :submit, value: value)
           attrs = add_ui_hint(attrs)
           self_closing_tag(:input, attrs)
@@ -725,7 +730,10 @@ class Roda
         #     => <input name="reset" title="a user hint" type="reset" value="Custom Value">
         #
         def reset_tag(value = 'Reset Form', attrs = {})
-          value, attrs =  'Reset Form', value if value.is_a?(Hash)
+          if value.is_a?(Hash)
+            attrs = value
+            value = 'Reset Form'
+          end
           attrs.reverse_merge!(type: :reset, name: :reset, value: value)
           attrs = add_ui_hint(attrs)
           self_closing_tag(:input, attrs)
