@@ -12,6 +12,7 @@ $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'rubygems'
 require 'roda/tags'
 require 'tilt/erubi'
+require 'tilt/haml'
 require 'rack/session'
 require 'rack/test'
 require 'minitest/autorun'
@@ -19,6 +20,8 @@ require 'minitest/have_tag'
 require 'minitest/hooks/default'
 require 'minitest/rg'
 
+# Disable HTML escaping for all HAML templates in the tests.
+Haml::Template.options[:escape_html] = false
 
 class Minitest::Spec # rubocop:disable Style/ClassAndModuleChildren
   include Rack::Test::Methods
@@ -54,6 +57,8 @@ class Minitest::Spec # rubocop:disable Style/ClassAndModuleChildren
       @app = _app { route(&block) }
     when :bare
       @app = _app(&block)
+    when :haml
+      @app = _app_haml(&block)
     when Symbol
       @app = _app do
         plugin type
@@ -145,6 +150,28 @@ class Minitest::Spec # rubocop:disable Style/ClassAndModuleChildren
   end
   # rubocop:enable Metrics/MethodLength
 
+  # Helper method to create a new Roda application instance for testing with HAML views
+  #
+  # @param block [Proc] Block containing routes and configuration for the test app
+  #
+  # @return [Class] New Roda application class configured for testing
+  #
+  # rubocop:disable Metrics/MethodLength
+  def _app_haml(&block)
+    c = Class.new(Roda)
+    c.plugin :render, engine: 'haml' #, escape: false
+    c.plugin(:not_found) { raise "path #{request.path_info} not found" }
+    c.use Rack::Session::Cookie, secret: @cookie_secret
+    c.class_eval do
+      def haml(str, opts = {})
+        render(opts.merge(inline: str))
+      end
+    end
+    c.class_eval(&block)
+    c
+  end
+  # rubocop:enable Metrics/MethodLength
+
   # Helper method to get the body of the last response. Essentially syntactic sugar
   #
   # @return [String] The body content of the last HTTP response
@@ -176,6 +203,27 @@ class Minitest::Spec # rubocop:disable Style/ClassAndModuleChildren
       route do |r|
         r.root do
           view(inline: view, layout: { inline: '<%= yield %>' }.merge(opts))
+        end
+      end
+    end
+    body('/')
+  end
+
+  # Helper method to create a test app with the tags plugin and a simple route
+  # Custom specs app
+  #
+  # @param view [String] The view template content to render
+  # @param opts [Hash] Options to pass to the view renderer
+  # @param configs [Hash] Configuration options for the tags plugin
+  #
+  # @return [String] The response body from requesting the root path
+  #
+  def tag_haml_app(view, opts = {}, configs = {})
+    app(:haml) do
+      plugin(:tags, configs)
+      route do |r|
+        r.root do
+          view(inline: view, layout: { inline: '= yield' }.merge(opts))
         end
       end
     end
