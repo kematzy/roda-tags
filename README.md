@@ -1,26 +1,37 @@
+<!-- markdownlint-disable MD013 MD033 -->
+
 # Roda::Tags
 
-A [Roda](http://roda.jeremyevans.net/) plugin providing easy creation of flexible HTML tags within Roda apps or Roda plugins.
+[![Ruby](https://github.com/kematzy/roda-tags/actions/workflows/ruby.yml/badge.svg?branch=master)](https://github.com/kematzy/roda-tags/actions/workflows/ruby.yml) - [![Gem Version](https://badge.fury.io/rb/roda-tags.svg)](https://badge.fury.io/rb/roda-tags) - [![Minitest Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop-minitest)
+
+Coverage: **100%**
+
+A [Roda](http://roda.jeremyevans.net/) plugin providing easy creation of flexible HTML tags within
+Roda apps or Roda plugins.
 
 Extensively tested and with 100% code test coverage.
 
-
 ## Installation
 
-To use this gem, just do
-
-```bash  
-$ (sudo) gem install roda-tags
-```
-
-or preferably add this to your Gemfile for Bundler
-
+Add this line to your application's Gemfile:
 
 ```ruby
 gem 'roda-tags'
 ```
 
-<br>
+And then execute:
+
+```bash
+bundle
+```
+
+Or install it yourself as:
+
+```bash
+gem install roda-tags
+```
+
+---
 
 ## Getting Started
 
@@ -30,12 +41,12 @@ To use Roda::Tags just ensure the gem is included in the Gemfile and then...
 
 ```bash
 class MyApp < Roda
-  
+
   plugin :tags  # see Configurations below for options
   # or
   plugin :tag_helpers # , options
-  
-  # <snip...>  
+
+  # <snip...>
 end
 ```
 
@@ -45,46 +56,40 @@ end
 class Roda
   module RodaPlugins
     module YourPlugin
-      
+
       def self.load_dependencies(app, opts={})
         app.plugin :tags, opts
         # or
         app.plugin :tag_helpers, opts
       end
-      
+
       # <snip...>
     end
   end
 end
 ```
-<br>
+
+---
 
 ## Usage
 
-
-
-<br>
+TODO: add usage notes here...
 
 ## Key Methods / Functionality
 
-
-<br>
-
-
-Roda::Tags contains two plugins - [`:tags`, `:tag_helpers`] - that can be used independently or together.
+Roda::Tags contains two plugins - [`:tags`, `:tag_helpers`] - that can be
+used independently or together.
 
 **Note!** The `:tags` plugin is loaded by the `:tag_helpers` plugin.
 
-<br>
+---
 
 ## 1. `:tags` Plugin
 
-
-This plugin have one **key public method** - `tag()`, which supports this **dynamic** syntax:
-
+This plugin have one **key public method** - `tag()`, which supports this
+**dynamic** syntax:
 
 ### -- `tag(*args, &block)`
-
 
 ```ruby
 tag(name)
@@ -100,7 +105,6 @@ tag(name, attributes, &block)
 
 This makes the method very flexible as can be seen below.
 
-
 #### Self closing tags
 
 ```ruby
@@ -114,21 +118,20 @@ tag(:hr, class: :divider)  #=>  <hr class="divider">
 ```ruby
 tag(:div)  #=>  <div></div>
 
-tag(:div, 'content') 
+tag(:div, 'content')
   #  <div>
   #    content
   #  </div>
 
-tag(:div, 'content', id: 'comment') 
+tag(:div, 'content', id: 'comment')
   #  <div id="comment">
   #    content
   #  </div>
-    
 
  # NB! no content
-tag(:div, id: :comment) 
+tag(:div, id: :comment)
   #=> <div id="comment"></div>
-   
+
 ```
 
 #### Single line tags
@@ -149,7 +152,6 @@ end
   #    <p>Hello World</p>
   #  </div>
 
-  
 <% tag(:ul) do %>
   <li>item 1</li>
   <%= tag(:li, 'item 2') %>
@@ -160,7 +162,6 @@ end
   #    <li>item 2</li>
   #    <li>item 3</li>
   #  </ul>
-
 
  # NOTE: ignores tag contents when given a block
 <% tag(:div, 'ignored tag-content') do %>
@@ -175,7 +176,6 @@ end
   #  </div>
 ```
 
-
 #### Boolean attributes
 
 ```ruby
@@ -184,63 +184,58 @@ tag(:input, type: :checkbox, checked: true)
 
 tag(:option, 'Roda', value: "1" selected: true)
   #=> <option selected="selected" value="1">Roda</option>
-  
+
 tag(:option, 'PHP', value: "0" selected: false)
   #=> <option value="0">PHP</option>
 ```
 
-<br>
+---
 
 The plugin also have a few other public helper methods:
-
 
 ### -- `merge_attr_classes(attr, *classes)`
 
 Updates `attr[:class]` in the hash with the given `classes` and returns `attr`.
-    
+
 ```ruby
 attr = { class: 'alert', id: :idval }
-    
-merge_attr_classes(attr, 'alert-info')  
+
+merge_attr_classes(attr, 'alert-info')
   #=> { class: 'alert alert-info', id: :idval }
-    
-merge_attr_classes(attr, [:alert, 'alert-info'])  
+
+merge_attr_classes(attr, [:alert, 'alert-info'])
   #=> { class: 'alert alert-info', id: :idval }
 ```
-    
-<br>
 
-
+---
 
 ### -- `merge_classes(*classes)`
-    
+
 Returns an alphabetised string from all given class values.
 
-The method correctly handles a combination of `arrays`, `strings` & `symbols` being passed in.
-    
+The method correctly handles a combination of `arrays`, `strings` & `symbols`
+being passed in.
+
 ```ruby
 attr = { class: 'alert', id: :idval }
-    
+
 merge_classes(attr[:class], ['alert', 'alert-info'])  #=> 'alert alert-info'
-    
+
 merge_classes(attr[:class], :text)  #=> 'alert text'
-    
+
 merge_classes(attr[:class], [:text, :'alert-info'])  #=> 'alert alert-info text'
 ```
 
-<br>
+---
 
-### Included Helper methods 
+### Included Helper methods
 
-The `:tags` plugin also includes a few useful public helper methods for use within other methods or gems.
-
+The `:tags` plugin also includes a few useful public helper methods for use
+within other methods or gems.
 
 ### -- `capture(block='')`
 
 Captures and returns a captured `ERB` block and restores the buffer afterwards.
- 
-<br>
-    
 
 ### -- `capture_html(*args, &block)`
 
@@ -253,49 +248,44 @@ def some_method(*args, &block)
  # <snip...>
 end
 ```
-    
-<br>
 
+---
 
 ### -- `concat_content(text="")`
 
 Outputs the given content to the buffer directly.
-  
+
 ```ruby
 concat_content("This will be concatenated to the buffer")
 ```
-    
-<br>
-      
-
-### -- `block_is_template?(block)`
-
-Returns `true` if the block is from an `ERB` or `HAML` template; `false` otherwise. Used to determine if contents should be returned or concatenated to output.
-
-<br>
 
 ---
 
-<br>
+### -- `block_is_template?(block)`
 
+Returns `true` if the block is from an `ERB` or `HAML` template; `false`
+otherwise. Used to determine if contents should be returned or concatenated
+to output.
+
+---
 
 ## 2. `:tag_helpers` Plugin
 
-<br>
-
-#### -- `form_tag(action, attrs={}, &block)`
+### -- `form_tag(action, attrs={}, &block)`
 
 Constructs a `<form>` without an object based on options passed.
 
 ```ruby
-form_tag('/register') do 
- ... 
+form_tag('/register') do
+ ...
 end
  #   <form action="/register" id="register-form" method="post">
  #    ...
  #   </form>
 ```
-Automatically adds a hidden *faux method* when `:method` is NOT either `POST` or `GET`.
+
+Automatically adds a hidden _faux method_ when `:method` is NOT either `POST`
+or `GET`.
 
 ```ruby
 form_tag('/user/1/profile', method: :put, id: 'profile-form')
@@ -320,25 +310,23 @@ form_tag('/upload', enctype: 'multipart/form-data')
   #  </form>
 ```
 
-<br>
 ---
 
-
 ### -- `label_tag(field, attrs={}, &block)`
- 
-Constructs a `<label>` tag from the given options. 
 
+Constructs a `<label>` tag from the given options.
 
-By default appends `':'` to the label name, based upon the plugin config `:tags_label_append ` value.
+By default appends `':'` to the label name, based upon the plugin config
+`:tags_label_append` value.
 
 ```ruby
 label_tag(:name)
   #=> <label for="name">Name:</label>
-     
+
 label_tag(:name, label: 'Custom label', class: 'sr-only')
   #=> <label class="sr-only" for="name">Custom label:</label>
 
- # uses a humanized version of the label name if { label: nil } 
+ # uses a humanized version of the label name if { label: nil }
 label_tag(:name, label: nil)
   #=> <label for="name">Name:</label>
 
@@ -347,8 +335,8 @@ label_tag(:name, label: false)
   #=> <label for="name"></label>
 ```
 
-By default adds `'<span>*</span>'` to the label name when `{ required: true }` is passed. Based upon the plugin config `:tags_label_required_str ` value.
-
+By default adds `'<span>*</span>'` to the label name when `{ required: true }`
+is passed. Based upon the plugin config `:tags_label_required_str` value.
 
 ```ruby
 label_tag(:name, required: true)
@@ -362,19 +350,22 @@ Label tags also supports passing blocks.
   <%= checkbox_tag :remember_me %>
 <% end %>
   #  <label for="remember_me">Remember Me:
-  #    <input class="checkbox" id="remember_me" name="remember_me" type="checkbox" value="1">
+  #    <input
+  #      class="checkbox"
+  #      id="remember_me"
+  #      name="remember_me"
+  #      type="checkbox"
+  #      value="1"
+  #    >
   #  </label>
 ```
 
-
-<br>
 ---
 
 ### -- `hidden_field_tag(name, attrs={})`
 
-        
-Constructs a hidden input field from the given options. Only `[:value, :id, :name]` attributes are allowed.
-
+Constructs a hidden input field from the given options. Only
+`[:value, :id, :name]` attributes are allowed.
 
 ```ruby
 hidden_field_tag(:snippet_name)
@@ -389,14 +380,14 @@ hidden_field_tag(:snippet_id, id: 'some-id')
  # removing the `:id` attribute completely.
 hidden_field_tag(:snippet_name, id: false)
   #=> <input name="snippet_name" type="hidden">
-``` 
+```
 
-<br>
 ---
 
-### -- `text_field_tag(name, attrs={}) `
- &nbsp; - *also aliased as* `textfield_tag()`
-        
+### -- `text_field_tag(name, attrs={})`
+
+&nbsp; - _also aliased as_ `textfield_tag()`
+
 Creates a standard `<input type="text"...>` field from the given options.
 
 ```ruby
@@ -434,12 +425,12 @@ text_field_tag(:name, readonly: true)
   #=> <input class="text" id="name" name="name" readonly="readonly" type="text">
 ```
 
-<br>
 ---
 
 ### -- `password_field_tag(name, attrs={})`
- &nbsp; - *also aliased as* `passwordfield_tag()`
-    
+
+&nbsp; - _also aliased as_ `passwordfield_tag()`
+
 Constructs a `<input type="password"...>` field from the given options.
 
 ```ruby
@@ -447,7 +438,12 @@ password_field_tag(:snippet_name)
   #=> <input class="text" id="snippet_name" name="snippet_name" type="password">
 
 password_field_tag(:snippet_name, value: 'some-value')
-  #=> <input class="text" id="snippet_name" name="snippet_name" type="password" value="some-value">
+  #=> <input
+  #     class="text"
+  #     id="snippet_name"
+  #     name="snippet_name"
+  #     type="password"
+  #     value="some-value">
 
 password_field_tag(:snippet_name, id: 'some-id')
   #=> <input class="text" id="some-id" name="snippet_name" type="password">
@@ -465,7 +461,13 @@ password_field_tag(:name, ui_hint: 'a user hint')
 
  # supports `:maxlength` & `:size` attributes
 password_field_tag(:ip_address, maxlength: 15, size: 20)
-  #=> <input class="text" id="ip_address" maxlength="15" name="ip_address" size="20" type="password">
+  #=> <input
+  #    class="text"
+  #    id="ip_address"
+  #    maxlength="15"
+  #    name="ip_address"
+  #    size="20"
+  #    type="password">
 
  # `disabled` attribute
 password_field_tag(:name, disabled: true)
@@ -473,16 +475,16 @@ password_field_tag(:name, disabled: :disabled)
   #=> <input class="text" id="name" disabled="disabled" name="name" type="password">
 ```
 
-<br>
 ---
 
-        
 ### -- `file_field_tag(name, attrs={})`
- &nbsp; - *also aliased as* `filefield_tag()`
 
-Creates an `<input type="file"...>` field from given options. 
+&nbsp; - _also aliased as_ `filefield_tag()`
 
-**NOTE!** If you are using file uploads then you will also need to set the multipart option for the form tag, like this:
+Creates an `<input type="file"...>` field from given options.
+
+**NOTE!** If you are using file uploads then you will also need to set the
+multipart option for the form tag, like this:
 
 ```ruby
 <% form_tag('/upload', multipart: true) do %>
@@ -492,8 +494,8 @@ Creates an `<input type="file"...>` field from given options.
 <% end %>
 ```
 
-The specified URL will then be passed a File object containing the selected file, or if the field was left blank, a StringIO object.
-
+The specified URL will then be passed a File object containing the selected file,
+or if the field was left blank, a StringIO object.
 
 ```ruby
 file_field_tag('attachment')
@@ -524,22 +526,26 @@ file_field_tag(:photo, disabled: true)
 
  # `:accept` attribute is subject to actual browser support.
 file_field_tag(:photo, accept: 'image/png,image/jpeg' )
-  #=> <input accept="image/png,image/jpeg" class="file" id="photo" name="photo" type="file">
+  #=> <input
+  #      accept="image/png,image/jpeg"
+  #      class="file"
+  #      id="photo"
+  #      name="photo"
+  #      type="file">
 ```
 
-<br>
 ---
 
-
 ### -- `textarea_tag(name, attrs={})`
- &nbsp; - *also aliased as* `text_area_tag()`
+
+&nbsp; - _also aliased as_ `text_area_tag()`
 
 Constructs a textarea input from the given options.
 
 **TODO:** enable :escape functionality. How??
 
-* `:escape` - By default, the contents of the text input are HTML escaped. If you need unescaped contents, set this to false.
-
+- `:escape` - By default, the contents of the text input are HTML escaped.
+  If you need unescaped contents, set this to false.
 
 ```ruby
 textarea_tag('post')
@@ -565,25 +571,29 @@ textarea_tag(:body, ui_hint: 'a user hint')
 textarea_tag('body', rows: 10, cols: 25)
   #=> <textarea cols="25" id="body" name="body" rows="10">...</textarea>
 
- # alternative `:size` shortcut to set `:rows` & `:cols` 
+ # alternative `:size` shortcut to set `:rows` & `:cols`
 textarea_tag('body', size: "25x10")
   #=> <textarea cols="25" id="body" name="body" rows="10">...</textarea>
 
  # `:disabled` attribute
 textarea_tag(:description, disabled: true)
-  #=> <textarea disabled="disabled" id="description" name="description">...</textarea>
- 
+  #=> <textarea disabled="disabled" id="description" name="description">
+  #   ...
+  #   </textarea>
+
  # `:readonly` attribute
 textarea_tag(:description, readonly: true)
-  #=> <textarea id="description" name="description" readonly="readonly">...</textarea>
-```  
+  #=> <textarea id="description" name="description" readonly="readonly">
+  #    ...
+  #   </textarea>
+```
 
-<br>
 ---
 
 ### -- `field_set_tag(*args, &block)`
- &nbsp; - *also aliased as* `fieldset_tag()`
-        
+
+&nbsp; - _also aliased as_ `fieldset_tag()`
+
 Creates a `<fieldset..>` tag for grouping HTML form elements.
 
 ```ruby
@@ -631,13 +641,11 @@ field_set_tag('Users', id: false)
   #    <snip...>
 ```
 
-<br>
 ---
 
 ### -- `legend_tag(contents, attrs={})`
-        
-Return a legend with _contents_ from the given options.
 
+Return a legend with _contents_ from the given options.
 
 ```ruby
 legend_tag('User Details')
@@ -652,15 +660,13 @@ legend_tag('User', class: 'some-class')
   #=> <legend class="some-class">User</legend>
 ```
 
-<br>
 ---
 
-
 ### -- `check_box_tag(name, attrs={})`
-&nbsp; - also aliased as `checkbox_tag()`
-        
-Creates an `<input type="checkbox"...>` tag from the given options.
 
+&nbsp; - also aliased as `checkbox_tag()`
+
+Creates an `<input type="checkbox"...>` tag from the given options.
 
 ```ruby
 check_box_tag(:accept) || checkbox_tag(:accept)
@@ -680,27 +686,45 @@ check_box_tag(:rock, class: 'small')
 
  # adds a `:title` attribute when passed `:ui_hint`
 check_box_tag(:rock, ui_hint: 'a user hint')
-  #=> <input class="checkbox" id="rock" name="rock" title="a user hint" type="checkbox" value="1">
+  #=> <input
+  #      class="checkbox"
+  #      id="rock"
+  #      name="rock"
+  #      title="a user hint"
+  #      type="checkbox"
+  #      value="1">
 
  # `checked` attribute
 check_box_tag(:rock, checked: true)
-  #=> <input checked="checked" class="checkbox" id="rock" name="rock" type="checkbox" value="1">
+  #=> <input
+  #     checked="checked"
+  #     class="checkbox"
+  #     id="rock"
+  #     name="rock"
+  #     type="checkbox"
+  #     value="1">
 
  # `disabled` attribute
 check_box_tag(:rock, disabled: true)
-  #=> <input class="checkbox" disabled="disabled" id="rock" name="rock" type="checkbox" value="1">
+  #=> <input
+  #     class="checkbox"
+  #     disabled="disabled"
+  #     id="rock"
+  #     name="rock"
+  #     type="checkbox"
+  #     value="1">
 ```
 
-<br>
 ---
 
 ### -- `radio_button_tag(name, attrs={})`
-&nbsp; - *also aliased as* `radiobutton_tag()`
-        
+
+&nbsp; - _also aliased as_ `radiobutton_tag()`
+
 Creates a `<input type="radio"...>` tag from the given options.
 
-**NOTE!** use groups of radio buttons named the same to allow users to select from a group of options.
-
+**NOTE!** use groups of radio buttons named the same to allow users to select
+from a group of options.
 
 ```ruby
 radio_button_tag(:accept) || radiobutton_tag(:accept)
@@ -710,15 +734,15 @@ radio_button_tag(:rock, value:'rock music')
   #=> <input class="radio" id="rock_rock-music" name="rock" type="radio" value="rock music">
 
  # setting a different :id.
-radio_button_tag(:rock, id: 'some-id')  
+radio_button_tag(:rock, id: 'some-id')
   #=> <input class="radio" id="some-id_1" name="rock" type="radio" value="1">
 
  # append a CSS class. NB! default class: '.radio'
-radio_button_tag(:rock, class: 'big')  
+radio_button_tag(:rock, class: 'big')
   #=> <input class="big radio" id="rock_1" name="rock" type="radio" value="1">
 
  # adds a `:title` attribute when passed `:ui_hint`
-radio_button_tag(:rock, ui_hint: 'a user hint')  
+radio_button_tag(:rock, ui_hint: 'a user hint')
   #=> <input class="radio" id="rock_1" value="1" name="rock" title="a user hint" type="radio">
 
  # `checked` attribute
@@ -730,13 +754,12 @@ radio_button_tag(:yes, disabled: true)
   #=> <input disabled="disabled" class="radio" id="yes_1" name="yes" type="radio" value="1">
 ```
 
-<br>
 ---
 
+### -- `submit_tag(value="Save Form", attrs={})`
 
-### -- `submit_tag(value="Save Form", attrs={})` 
-&nbsp; - *also aliased as*  **`submit_button()`**
-        
+&nbsp; - _also aliased as_ **`submit_button()`**
+
 Creates a submit button with the text value as the caption.
 
 ```ruby
@@ -745,7 +768,7 @@ submit_tag()  || submit_button()
 
 submit_tag(nil)
   #=> <input name="submit" type="submit" value="">
-  
+
 submit_tag('Custom Value')
   #=> <input name="submit" type="submit" value="Custom Value">
 
@@ -762,13 +785,11 @@ submit_tag(ui_hint: 'a user hint')
   #=> <input name="submit" title="a user hint" type="submit" value="Save Form">
 ```
 
-<br>
 ---
 
 ### -- `image_submit_tag(src, attrs={})`
 
 Adds a `<input src=""...>` tag which displays an image.
- 
 
 ```ruby
 @img = '/img/btn.png'
@@ -783,11 +804,11 @@ image_submit_tag(@img, class 'search-button')
   #=> <input class="search-button" src="/img/btn.png" type="image">
 ```
 
-<br>
 ---
 
 ### -- `reset_tag(value='Reset Form', attrs={})`
-&nbsp; - *also aliased as*  **`reset_button()`**
+
+&nbsp; - _also aliased as_ **`reset_button()`**
 
 Creates a reset button with the text value as the caption.
 
@@ -807,20 +828,18 @@ reset_tag(class: 'some-class')
 
  # supports the `:disabled` attribute
 reset_tag(disabled: true)
-  #=> <input disabled="disabled" name="reset" type="reset" value="Reset Form"> 
+  #=> <input disabled="disabled" name="reset" type="reset" value="Reset Form">
 
  # adds a `:title` attribute when passed `:ui_hint`
 reset_tag(ui_hint: 'a user hint')
   #=> <input name="reset" title="a user hint" type="submit" value="Reset Form">
 ```
 
-<br>
 ---
 
 ### -- `select_tag(name, options, attrs={})`
-        
-Creates a `<select..>` tag (dropdown menu), including the various select options.
 
+Creates a `<select..>` tag (dropdown menu), including the various select options.
 
 **Note!** the format for the options values must be `[value, key]`.
 
@@ -887,8 +906,9 @@ select_tag(:letters, @letters, selected: :a)
   #    <snip...>
 ```
 
-
-When passing multiple items to `:selected` option or setting the `{ multiple: true }` option, the select menu automatically becomes a multiple select box.
+When passing multiple items to `:selected` option or setting the
+`{ multiple: true }` option, the select menu automatically becomes
+a multiple select box.
 
 **NOTE!** the `name="letters[]"` attribute.
 
@@ -904,10 +924,9 @@ select_tag(:letters, @letters, multiple: true)
   #    <snip...>
 ```
 
-<br>
 ---
 
-### -- `select_option(value, key, attrs={})`      
+### -- `select_option(value, key, attrs={})`
 
 Creates an `<option...>` tag for `<select...>` menus.
 
@@ -917,7 +936,7 @@ select_option('a', 'Letter A')
 
 select_option('on', '')  # , nil)
   #=> <option value="on">On</option>
- 
+
  # handling selected options
 select_option('a', 'Letter A', selected: true)
   #=> <option selected="selected" value="a">Letter A</option>
@@ -926,60 +945,59 @@ select_option('a', 'Letter A', selected: false)
   #=> <option value="a">Letter A</option>
 ```
 
-<br>
 ---
 
 ### -- `faux_method(method='PUT')`
-
 
 ```ruby
  faux_method() #=> <input name="_method" type="hidden" value="PUT">
 
  # handling DELETE requests
  faux_method(:delete) #=> <input name="_method" type="hidden" value="DELETE">
- 
-```     
 
-<br>
+```
+
 ---
 
 ## Plugin Configurations
 
-The default settings should help you get moving quickly, and are fairly common sense based.
+The default settings should help you get moving quickly, and are fairly common
+sense based.
 
 However the `:tags` plugin supports these config options:
 
-#### `:tag_output_format_is_xhtml`
+### `:tag_output_format_is_xhtml`
 
-Sets the HTML output format, toggling between `HTML 5` (`false`) and `XHTML` (`true`). Default is: `false`.
+Sets the HTML output format, toggling between `HTML 5` (`false`) and `XHTML`
+(`true`). Default is: `false`.
 
-This option is retained for legacy support and in memory of the *"good old days"* ;-).
+This option is retained for legacy support and in memory of the
+_"good old days"_ ;-).
 
-#### `:tag_add_newlines_after_tags`
+### `:tag_add_newlines_after_tags`
 
-Sets the formatting of the HTML output, whether it should be more compact in nature or slightly better formatted. Default is: `true`.
-
+Sets the formatting of the HTML output, whether it should be more compact in
+nature or slightly better formatted. Default is: `true`.
 
 The `:tag_helpers` plugin supports these config options:
 
-
 #### `:tags_label_required_str`
 
-Sets the formatting of the string appended to required `<label...>` tags. Default is: `'<span>*</span>'`.
+Sets the formatting of the string appended to required `<label...>` tags.
+Default is: `'<span>*</span>'`.
 
 #### `:tags_label_append_str`
 
 Sets the formatting of the string appended to `<label...>` tags. Default is: `':'`.
 
-
 #### `:tags_forms_default_class`
 
 Sets the default class value for form tags. Default is: `''` (empty).
 
-This is a shortcut to automatically add something like [Bootstrap](https://getbootstrap.com/)  support with `'form-control'`
+This is a shortcut to automatically add something like
+[Bootstrap](https://getbootstrap.com/) support with `'form-control'`
 
-
-**NOTE!** 
+**NOTE!**
 
 Config options set in `:tag_helpers` are passed on to the `:tags` plugin.
 
@@ -990,94 +1008,74 @@ plugin :tag_helpers, { tag_output_format_is_xhtml: true, ... }
  # <snip...>
 ```
 
-
-
 ## RTFM
 
-If the above is not clear enough, please check the specs for a better understanding.
-
-<br>
+If the above is not clear enough, please check the specs for a better
+understanding.
 
 ## Errors / Bugs
 
 If something is not behaving intuitively, it is a bug, and should be reported.
-Report it here: http://github.com/kematzy/roda-tags/issues 
+Report [Issues here](http://github.com/kematzy/roda-tags/issues)
 
-<br>
+---
 
 ## TODOs
 
-* Keep it up to date with any changes in `Roda` or `HTML`.
+- Keep it up to date with any changes in `Roda` or `HTML`.
 
-* Decide on if it's worth it to do validity checks on all attributes passed to tags 
-  ie: reject attributes based upon what is allowed for the tag. 
-    
-    ```ruby
-    tag(:base, href: 'url', target: '_self', id: 'is-ignored') 
-      #=> <base href="url", target="_self">
-    ```
+- Decide on if it's worth it to do validity checks on all attributes passed to tags
+  ie: reject attributes based upon what is allowed for the tag.
 
-* Decide on whether to add a number of convenience tags (methods), such as:
-  
-    - ```meta(name, contents)```
-    
-    - ```img(src, attrs={})```
-  
+  ```ruby
+  tag(:base, href: 'url', target: '_self', id: 'is-ignored')
+    #=> <base href="url", target="_self">
+  ```
 
-* Any other improvements we may think of.
+- Decide on whether to add a number of convenience tags (methods), such as:
 
+  - `meta(name, contents)`
+  - `img(src, attrs={})`
 
-<br>
+- Any other improvements we may think of.
 
-## Dependencies
+---
 
-This Gem depends upon the following:
+## Acknowledgements
 
-### Runtime:
+Inspiration for this gem was taken from the ActiveSupport gem by DHH & Rails Core Team released
+under the MIT license.
 
-* roda (>= 2.5.0)
-* tilt 
-* erubis
+---
 
+## Development
 
-### Development & Tests:
+After checking out the repo, run `bundle install` to install dependencies.
+Then, run `bundle exec rake spec` to run the tests.
 
-* bundler (~> 1.10)
-* rake  (~> 10.0)
-* minitest
-* minitest-hooks
-* minitest-rg
-* rack-test
-* nokogiri  => for the `assert_have_tag()` tests
+To install this gem onto your local machine, run `bundle exec rake install`.
 
-* simplecov
+To release a new version:
 
+1. update the version number in `version.rb`
+2. run `bundle exec rake release`, which will create a git tag for the version
+3. push git commits and tags
+4. push the `.gem` file to [rubygems.org](https://rubygems.org).
 
-<br>
+## Contributing
 
-## Note on Patches/Pull Requests
- 
-* Fork the project.
-* Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a future version unintentionally.
-* Commit, do not mess with Rakefile, version, or history.
-  * (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
-* Send me a pull request. Bonus points for topic branches.
+Bug reports and pull requests are welcome on [GitHub](https://github.com/kematzy/roda-tags).
 
-
-<br>
+This project is intended to be a safe, welcoming space for collaboration, and contributors are
+expected to adhere to the [Contributor Covenant](contributor-covenant.org) code of conduct.
 
 ## Copyright
 
-Copyright (c) 2010-2015 Kematzy
+Copyright (c) 2010 - 2024 Kematzy
 
 Released under the MIT License. See LICENSE for further details.
 
-<br>
+## License
 
-## Code Inspirations:
-
-* The ActiveSupport gem by DHH & Rails Core Team
-
-
-
+The gem is available as open source under the terms of the
+[MIT License](http://opensource.org/licenses/MIT).
