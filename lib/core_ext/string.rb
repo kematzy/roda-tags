@@ -1,8 +1,8 @@
-# The inflector extension adds inflection instance methods to String, which allows the easy 
 # frozen_string_literal: false
 
+# The inflector extension adds inflection instance methods to String, which allows the easy
 # transformation of words from singular to plural, class names to table names, modularized class
-# names to ones without, and class names to foreign keys.  It exists for 
+# names to ones without, and class names to foreign keys.  It exists for
 # backwards compatibility to legacy Sequel code.
 #
 # To load the extension:
@@ -19,12 +19,16 @@ class String
   #     inflect.uncountable "equipment"
   #   end
   #
-  # New rules are added at the top. So in the example above, the irregular rule for octopus will 
-  # now be the first of the pluralization and singularization rules that is runs. This guarantees 
+  # New rules are added at the top. So in the example above, the irregular rule for octopus will
+  # now be the first of the pluralization and singularization rules that is runs. This guarantees
   # that your rules run before any of the rules that may already have been loaded.
+  #
   module Inflections
+    # Array to store plural inflection rules
     @plurals   = []
+    # Array to store singular inflection rules
     @singulars = []
+    # Array to store words that are the same in singular and plural forms
     @uncountables = []
 
     # Proc that is instance evaled to create the default inflections for both the
@@ -74,24 +78,40 @@ class String
     # rubocop:enable Metrics/BlockLength
 
     class << self
-      # Array of 2 element arrays, first containing a regex, and the second containing a 
-      # substitution pattern, used for plurization.
+      # An Array that stores the pluralization rules.
+      # Each rule is a 2-element array containing:
+      # - A regular expression pattern for matching words to pluralize
+      # - A substitution pattern (e.g. '\1es') for transforming the match into plural form
+      # Rules are processed in reverse order, so newer rules take precedence.
       attr_reader :plurals
 
-      # Array of 2 element arrays, first containing a regex, and the second containing a 
-      # substitution pattern, used for singularization.
+      # An Array that stores the singularization rules.
+      # Each rule is a 2-element array containing:
+      # - A regular expression pattern for matching plural words
+      # - A substitution pattern (e.g. '\1y') for transforming the match into singular form
+      # Rules are processed in reverse order, so newer rules take precedence.
       attr_reader :singulars
 
-      # Array of strings for words were the singular form is the same as the plural form
+      # An Array of uncountable word strings that should not be inflected.
+      # These words have the same form in both singular and plural.
+      # Examples: 'fish', 'money', 'species'
       attr_reader :uncountables
     end
 
-    # Clears the loaded inflections within a given scope (default is :all). Give the scope as a 
-    # symbol of the inflection type, the options are: :plurals, :singulars, :uncountables
+    # Clear inflection rules in a given scope.
+    # If scope is not specified, all inflection rules will be cleared.
+    # Passing :plurals, :singulars, or :uncountables will clear only that specific type of rule.
     #
-    # Examples:
-    #   clear :all
-    #   clear :plurals
+    # @param scope [Symbol] The scope of rules to clear. Can be :all (default),
+    #   :plurals, :singulars, or :uncountables
+    # @return [Array] An empty array
+    #
+    # @example Clear all inflection rules
+    #   String.inflections.clear
+    #
+    # @example Clear only plural rules
+    #   String.inflections.clear(:plurals)
+    #
     def self.clear(scope = :all)
       case scope
       when :all
@@ -103,71 +123,115 @@ class String
       end
     end
 
-    # Specifies a new irregular that applies to both pluralization and singularization at the same 
-    # time. This can only be used for strings, not regular expressions. You simply pass the 
-    # irregular in singular and plural form.
+    # Specifies a new irregular inflection rule that transforms between singular and plural forms.
+    # This method creates rules for both pluralization and singularization simultaneously.
+    # Unlike regular inflection rules, this only works with literal strings, not regexp.
     #
-    # Examples:
-    #   irregular 'octopus', 'octopi'
-    #   irregular 'person', 'people'
+    # @param singular [String] The singular form of the word
+    # @param plural [String] The plural form of the word
+    #
+    # @example
+    #   irregular('person', 'people')  # Creates rules to transform person <-> people
+    #   irregular('child', 'children') # Creates rules to transform child <-> children
+    #
     def self.irregular(singular, plural)
       plural(Regexp.new("(#{singular[0, 1]})#{singular[1..-1]}$", 'i'), '\1' + plural[1..-1])
       singular(Regexp.new("(#{plural[0, 1]})#{plural[1..-1]}$", 'i'), '\1' + singular[1..-1])
     end
 
-    # Specifies a new pluralization rule and its replacement. The rule can either be a string or a 
-    # regular expression. The replacement should always be a string that may include references to 
-    # the matched data from the rule.
+    # Specifies a new pluralization rule to transform singular words into plural forms.
+    # Adds the rule to the beginning of the rules array so it takes precedence over existing rules.
     #
-    # Example:
-    #   plural(/(x|ch|ss|sh)$/i, '\1es')
+    # @param rule [Regexp, String] Pattern to match words that should be pluralized
+    # @param replacement [String] Template for constructing the plural form, can reference
+    #   captured groups from the rule pattern using \1, \2 etc.
+    # @return [Array] The updated array of plural rules
+    #
+    # @example Add rule to pluralize words ending in 'y'
+    #   plural(/([^aeiou])y$/i, '\1ies') # changes 'fly' to 'flies'
+    #
     def self.plural(rule, replacement)
       @plurals.insert(0, [rule, replacement])
     end
 
-    # Specifies a new singularization rule and its replacement. The rule can either be a string or 
-    # a regular expression. The replacement should always be a string that may include references 
-    # to the matched data from the rule.
+    # Specifies a new singularization rule to transform plural words into singular forms.
+    # Adds the rule to the beginning of the rules array so it takes precedence over existing rules.
     #
-    # Example:
-    #   singular(/([^aeiouy]|qu)ies$/i, '\1y') 
+    # @param rule [Regexp, String] Pattern to match words that should be singularized
+    # @param replacement [String] Template for constructing the singular form, can reference
+    #   captured groups from the rule pattern using \1, \2 etc.
+    #
+    # @return [Array] The updated array of singular rules
+    #
+    # @example Add rule to singularize words ending in 'ies'
+    #   singular(/([^aeiou])ies$/i, '\1y') # changes 'flies' to 'fly'
+    #
     def self.singular(rule, replacement)
       @singulars.insert(0, [rule, replacement])
     end
 
-    # Add uncountable words that shouldn't be attempted inflected.
+    # Adds words that have the same singular and plural form to the uncountables list.
+    # These words will be skipped by the inflector and returned unchanged.
     #
-    # Examples:
-    #   uncountable "money"
-    #   uncountable "money", "information"
-    #   uncountable %w( money information rice )
+    # @param words [Array<String>] One or more words to mark as uncountable
+    # @return [Array] The flattened array of all uncountable words
+    #
+    # @example Add a single uncountable word
+    #   uncountable "fish"
+    #
+    # @example Add multiple uncountable words
+    #   uncountable "rice", "equipment"
+    #
+    # @example Add an array of uncountable words
+    #   uncountable %w(sheep species)
+    #
     def self.uncountable(*words)
       (@uncountables << words).flatten!
     end
 
-    # Sequel.require('default_inflections', 'model')
-    # instance_eval(&Sequel::DEFAULT_INFLECTIONS_PROC)
-    # Sequel.require('default_inflections', 'model')
-    instance_eval(&DEFAULT_INFLECTIONS_PROC)
+    # Execute the default inflection rules defined in DEFAULT_INFLECTIONS_PROC
+    # This sets up the basic plural/singular transformations and irregular/uncountable words
+    # that the inflector will use by default
+    instance_exec(&DEFAULT_INFLECTIONS_PROC)
   end
 
-  # Yield the Inflections module if a block is given, and return
-  # the Inflections module.
+  # Provides access to the Inflections module for defining custom inflection rules.
+  # If a block is given, yields the Inflections module to the block.
+  # Always returns the Inflections module.
+  #
+  # @yield [Inflections] The Inflections module if a block is given
+  #
+  # @return [Inflections] The Inflections module
+  #
+  # @example Define custom inflection rules
+  #   String.inflections do |inflect|
+  #     inflect.plural /^(ox)$/i, '\1\2en'
+  #     inflect.singular /^(ox)en/i, '\1'
+  #   end
+  #
   def self.inflections
     yield Inflections if defined?(yield)
     Inflections
   end
 
-  # By default, camelize converts the string to UpperCamelCase. If the argument to camelize
-  # is set to :lower then camelize produces lowerCamelCase.
+  # Converts the string to CamelCase format.
+  # - Replaces forward slashes with double colons (e.g. 'foo/bar' -> 'Foo::Bar')
+  # - Converts underscores to camelized format (e.g. 'foo_bar' -> 'FooBar')
   #
-  # camelize will also convert '/' to '::' which is useful for converting paths to namespaces
+  # @param first_letter_in_uppercase [Symbol] Whether first letter should be
+  #    uppercase (:upper) or lowercase (:lower)
   #
-  # Examples
+  # @return [String] The camelized string
+  #
+  # @example Convert to UpperCamelCase
   #   "active_record".camelize #=> "ActiveRecord"
+  #
+  # @example Convert to lowerCamelCase
   #   "active_record".camelize(:lower) #=> "activeRecord"
+  #
+  # @example Convert path to namespace
   #   "active_record/errors".camelize #=> "ActiveRecord::Errors"
-  #   "active_record/errors".camelize(:lower) #=> "activeRecord::Errors"
+  #
   def camelize(first_letter_in_uppercase = :upper)
     s = gsub(%r{/(.?)})   { |x| "::#{x[-1..-1].upcase unless x == '/'}" }
         .gsub(/(^|_)(.)/) { |x| x[-1..-1].upcase }
@@ -176,24 +240,43 @@ class String
   end
   alias camelcase camelize
 
-  # Singularizes and camelizes the string.  Also strips out all characters preceding
-  # and including a period (".").
+  # Converts a string into a class name by removing any non-final period and subsequent characters,
+  # converting to singular form, and camelizing.
+  # Commonly used to obtain class name from table or file names.
   #
-  # Examples
+  # @return [String] A camelized singular form suitable for a class name
+  #
+  # @example Convert database table name to class name
   #   "egg_and_hams".classify #=> "EggAndHam"
-  #   "post".classify #=> "Post"
+  #
+  # @example Remove schema prefix
   #   "schema.post".classify #=> "Post"
+  #
+  # @example Basic conversion
+  #   "post".classify #=> "Post"
+  #
   def classify
     sub(/.*\./, '').singularize.camelize
   end
 
-  # Constantize tries to find a declared constant with the name specified
-  # in the string. It raises a NameError when the name is not in CamelCase
-  # or is not initialized.
+  # Finds and returns a Ruby constant from a string name.
+  # The string must be a valid constant name in CamelCase format.
+  # Can handle namespaced constants using double colons (::).
+  # Raises NameError if the constant name is invalid or not defined.
   #
-  # Examples
+  # @return [Object] The Ruby constant corresponding to the string name
+  #
+  # @raise [NameError] If string is not a valid constant name or constant is not defined
+  #
+  # @example Get Module class
   #   "Module".constantize #=> Module
-  #   "Class".constantize #=> Class
+  #
+  # @example Get namespaced constant
+  #   "ActiveRecord::Base".constantize #=> ActiveRecord::Base
+  #
+  # @example Invalid constant name
+  #   "invalid_name".constantize #=> NameError: invalid_name is not a valid constant name!
+  #
   def constantize
     unless m = /\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/.match(self)
       raise(NameError, "#{inspect} is not a valid constant name!") 
@@ -201,53 +284,94 @@ class String
     Object.module_eval("::#{m[1]}", __FILE__, __LINE__)
   end
 
-  # Replaces underscores with dashes in the string.
+  # Replaces underscores (_) in a string with dashes (-).
+  # A helper method commonly used for URL slugs and CSS class names.
   #
-  # Example
-  #   "puni_puni".dasherize #=> "puni-puni"
+  # @return [String] The string with underscores replaced by dashes
+  #
+  # @example
+  #   "hello_world".dasherize #=> "hello-world"
+  #   "foo_bar_baz".dasherize #=> "foo-bar-baz"
+  #
   def dasherize
     tr('_', '-')
   end
 
-  # Removes the module part from the expression in the string
+  # Removes the module part from a fully-qualified Ruby constant name,
+  # returning just the rightmost portion after the last double colon (::).
   #
-  # Examples
-  #   "ActiveRecord::CoreExtensions::String::Inflections".demodulize #=> "Inflections"
-  #   "Inflections".demodulize #=> "Inflections"
+  # @return [String] The final constant name without any module namespacing
+  #
+  # @example Remove module namespace from fully-qualified name
+  #   "ActiveRecord::Base::Table".demodulize #=> "Table"
+  #
+  # @example No change when no modules present
+  #   "String".demodulize #=> "String"
+  #
   def demodulize
     gsub(/^.*::/, '')
   end
 
-  # Creates a foreign key name from a class name.
-  # +use_underscore+ sets whether the method should put '_' between the name and 'id'.
+  # Creates a foreign key name from a class name by removing any module namespacing,
+  # underscoring the remaining name, and appending 'id'. The underscore before 'id'
+  # is optional.
   #
-  # Examples
+  # @param use_underscore [Boolean] Whether to include an underscore before 'id'
+  #
+  # @return [String] The foreign key name
+  #
+  # @example Basic usage
   #   "Message".foreign_key #=> "message_id"
-  #   "Message".foreign_key(false) #=> "messageid"
+  #
+  # @example Without underscore
+  #   "Message".foreign_key(use_underscore: false) #=> "messageid"
+  #
+  # @example With namespaced class
   #   "Admin::Post".foreign_key #=> "post_id"
-  def foreign_key(use_underscore = true)
-    "#{demodulize.underscore}#{'_' if use_underscore}id"
+  #
+  def foreign_key(use_underscore: true)
+    "#{demodulize.underscore}#{"_" if use_underscore}id"
   end
 
-  # Capitalizes the first word and turns underscores into spaces and strips _id.
-  # Like titleize, this is meant for creating pretty output.
+  # Converts a string into a more human-readable format by:
+  # - Removing any trailing '_id'
+  # - Converting underscores to spaces
+  # - Capitalizing the first letter
   #
-  # Examples
-  #   "employee_salary" #=> "Employee salary"
-  #   "author_id" #=> "Author"
+  # @return [String] A human-friendly version of the string
+  #
+  # @example Convert a database column name
+  #   "employee_salary".humanize #=> "Employee salary"
+  #
+  # @example Remove ID suffix
+  #   "user_id".humanize #=> "User"
+  #
+  # @example Basic conversion
+  #   "hello_world".humanize #=> "Hello world"
+  #
   def humanize
     gsub(/_id$/, '').tr('_', ' ').capitalize
   end
 
-  # Returns the plural form of the word in the string.
+  # Transforms a word into its plural form according to standard English language rules
+  # and any custom rules defined through String.inflections.
   #
-  # Examples
+  # If the word is in the uncountable list (e.g. "sheep", "fish"), returns it unchanged.
+  # Otherwise applies plural transformation rules in order until one matches.
+  #
+  # @return [String] The plural form of the word
+  #
+  # @example Basic pluralization
   #   "post".pluralize #=> "posts"
   #   "octopus".pluralize #=> "octopi"
-  #   "sheep".pluralize #=> "sheep"
-  #   "words".pluralize #=> "words"
+  #
+  # @example Uncountable words
+  #   "fish".pluralize #=> "fish"
+  #
+  # @example Complex phrases
   #   "the blue mailman".pluralize #=> "the blue mailmen"
   #   "CamelOctopus".pluralize #=> "CamelOctopi"
+  #
   def pluralize
     result = dup
     unless Inflections.uncountables.include?(downcase)
@@ -256,15 +380,25 @@ class String
     result
   end
 
-  # The reverse of pluralize, returns the singular form of a word in a string.
+  # Transforms a word into its singular form according to standard English language rules
+  # and any custom rules defined through String.inflections.
   #
-  # Examples
+  # If the word is in the uncountable list (e.g. "sheep", "fish"), returns it unchanged.
+  # Otherwise applies singular transformation rules in order until one matches.
+  #
+  # @return [String] The singular form of the word
+  #
+  # @example Basic singularization
   #   "posts".singularize #=> "post"
-  #   "octopi".singularize #=> "octopus"
-  #   "sheep".singluarize #=> "sheep"
-  #   "word".singluarize #=> "word"
+  #   "matrices".singularize #=> "matrix"
+  #
+  # @example Uncountable words
+  #   "fish".singularize #=> "fish"
+  #
+  # @example Complex phrases
   #   "the blue mailmen".singularize #=> "the blue mailman"
   #   "CamelOctopi".singularize #=> "CamelOctopus"
+  #
   def singularize
     result = dup
     unless Inflections.uncountables.include?(downcase)
@@ -273,35 +407,69 @@ class String
     result
   end
 
-  # Underscores and pluralizes the string.
+  # Converts a class name or CamelCase word to a suitable database table name
+  # by underscoring and pluralizing it. Namespaces are converted to paths.
+  # Used to derive table names from model class names.
   #
-  # Examples
+  # @return [String] The table name (underscored, pluralized form)
+  #
+  # @example Convert class name to table name
   #   "RawScaledScorer".tableize #=> "raw_scaled_scorers"
-  #   "egg_and_ham".tableize #=> "egg_and_hams"
+  #
+  # @example Handle namespaces
+  #   "Admin::Post".tableize #=> "admin/posts"
+  #
+  # @example Basic conversion
   #   "fancyCategory".tableize #=> "fancy_categories"
+  #
   def tableize
     underscore.pluralize
   end
 
-  # Capitalizes all the words and replaces some characters in the string to create
-  # a nicer looking title. Titleize is meant for creating pretty output.
+  # Converts a string into a more human-readable title format by:
+  # - Converting underscores and dashes to spaces
+  # - Capitalizing each word
+  # - Applying human-friendly formatting
   #
   # titleize is also aliased as as titlecase
   #
-  # Examples
-  #   "man from the boondocks".titleize #=> "Man From The Boondocks"
+  # @return [String] A titleized version of the string
+  #
+  # @example Convert basic string to title
+  #   "hello_world".titleize #=> "Hello World"
+  #
+  # @example Convert with special characters
   #   "x-men: the last stand".titleize #=> "X Men: The Last Stand"
+  #
+  # @example Convert camelCase to title
+  #   "camelCase".titleize #=> "Camel Case"
+  #
   def titleize
     underscore.humanize.gsub(/\b([a-z])/) { |x| x[-1..].upcase }
   end
   alias titlecase titleize
 
-  # The reverse of camelize. Makes an underscored form from the expression in the string.
-  # Also changes '::' to '/' to convert namespaces to paths.
+  # Converts a CamelCase or camelCase string into an underscored format.
+  # - Replaces '::' with '/' for namespace/path conversion
+  # - Adds underscores between words including:
+  #   - Between runs of capital letters: 'ABC' -> 'a_b_c'
+  #   - Before first lowercase letter after capitals: 'HTMLParser' -> 'html_parser'
+  #   - Before capitals after lowercase/numbers: 'fooBar' -> 'foo_bar'
+  # - Converts all dashes to underscores
+  # - Converts everything to lowercase
   #
-  # Examples
+  # @return [String] The underscored version of the string
+  #
+  # @example Convert camelCase
+  #   "camelCase".underscore #=> "camel_case"
   #   "ActiveRecord".underscore #=> "active_record"
-  #   "ActiveRecord::Errors".underscore #=> active_record/errors
+  #
+  # @example Convert namespace
+  #   "ActiveRecord::Errors".underscore #=> 'active_record/errors'
+  #
+  # @example Convert complex CamelCase
+  #   "HTMLParser".underscore #=> "html_parser"
+  #
   def underscore
     gsub('::', '/').gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
                    .gsub(/([a-z\d])([A-Z])/, '\1_\2').tr('-', '_').downcase
@@ -309,6 +477,8 @@ class String
 end
 
 # Ripped from the Sequel gem by Jeremy Evans
+# https://github.com/jeremyevans/sequel/blob/master/lib/sequel/extensions/inflector.rb
+#
 #
 # Copyright (c) 2007-2008 Sharon Rosner
 # Copyright (c) 2008-2015 Jeremy Evans
