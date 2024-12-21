@@ -41,7 +41,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency('erubi', '~> 1.13.0', '>= 1.13.0')
   spec.add_dependency('haml', '~> 6.3.0', '>= 6.3.0')
   spec.add_dependency('roda', '~> 3.85.0', '>= 3.85.0')
-  spec.add_dependency('tilt', '~> 2.4.0', '>= 2.4.0')
+  spec.add_dependency('tilt', '>= 2.4', '< 2.6')
 
   spec.metadata['rubygems_mfa_required'] = 'true'
 end
