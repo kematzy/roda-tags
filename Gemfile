@@ -40,7 +40,7 @@ group :development do
   gem 'rack-session', '~> 2.0.0', '>= 2.0.0'
   # Simple testing API for Rack based applications
   # DOCS: https://github.com/rack/rack-test
-  gem 'rack-test', '~> 2.1.0', '>= 2.1.0'
+  gem 'rack-test', '~> 2.2.0'
 
   # Ruby build program with capabilities similar to Make
   # DOCS: https://github.com/ruby/rake
