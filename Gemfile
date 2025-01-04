@@ -37,7 +37,7 @@ group :development do
   gem 'nokogiri', '~> 1.16.7', '>= 1.16.0'
   # Simple testing API for Rack based applications
   # DOCS: https://github.com/rack/rack-test
-  gem 'rack-session', '~> 2.0.0', '>= 2.0.0'
+  gem 'rack-session', '~> 2.1.0'
   # Simple testing API for Rack based applications
   # DOCS: https://github.com/rack/rack-test
   gem 'rack-test', '~> 2.1.0', '>= 2.1.0'
